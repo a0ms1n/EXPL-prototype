@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e7e9e3">
+  <title>ต้นแบบค่าโดยสาร</title>
+  <link rel="stylesheet" href="preview.css">
+  <script src="preview.js" defer></script>
+</head>
+<body>
+  <button id="toggle-frame" class="frame-toggle" type="button" aria-pressed="false">Mobile frame: Off</button>
+  <main id="preview-stage" class="preview-stage" aria-label="ต้นแบบค่าโดยสาร">
+    <div class="phone-frame">
+      <span class="frame-button frame-silent" aria-hidden="true"></span><span class="frame-button frame-volume-up" aria-hidden="true"></span><span class="frame-button frame-volume-down" aria-hidden="true"></span><span class="frame-button frame-power" aria-hidden="true"></span><span class="frame-button frame-camera" aria-hidden="true"></span>
+      <div class="phone-screen"><iframe id="app-preview" src="app.html" title="แอปคำนวณค่าโดยสาร" allowfullscreen></iframe><div class="home-indicator" aria-hidden="true"><span></span></div></div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f6f2">
+  <title>คำนวณค่าโดยสาร</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="fare.js" defer></script>
+  <script src="map.js" defer></script>
+  <script src="settings.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body class="phone-mode">
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M6 8v6a4 4 0 0 0 4 4h6M14 6h4v4m0-4-5 5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-bike" viewBox="0 0 24 24"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="m5 17 4-7h5l5 7m-10-7 4 7H5m8 0 3-11h-4m-6 4H4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="m9 3-.6 2.4-2 .9-2.2-.7-2 3.5 1.7 1.7v2.4l-1.7 1.7 2 3.5 2.2-.7 2 .9L9 21h4l.6-2.4 2-.9 2.2.7 2-3.5-1.7-1.7v-2.4l1.7-1.7-2-3.5-2.2.7-2-.9L13 3Z"/><circle cx="11" cy="12" r="3"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  </defs></svg>
+
+  <div class="phone-statusbar" aria-hidden="true"><b>9:41</b><span class="dynamic-island"><i></i></span><span class="status-icons"><svg viewBox="0 0 18 14"><path d="M2 12V9m4 3V6m4 6V3m4 9V1" stroke-width="2.5"/></svg><svg viewBox="0 0 18 14"><path d="M2 4a11 11 0 0 1 14 0M5 7a6 6 0 0 1 8 0m-5 3a2 2 0 0 1 2 0" stroke-width="2"/></svg><span class="status-battery"><i></i></span></span></div>
+  <div class="app-shell">
+    <header class="app-header">
+      <span class="brand brand-accent">SC-09</span>
+      <div class="header-tools"><span class="demo-badge"><span></span>ทดลอง</span><button id="open-settings" class="settings-button" type="button" aria-label="เปิดการตั้งค่า Debug mode" aria-haspopup="dialog" aria-controls="debug-settings"><svg><use href="#i-settings"/></svg></button></div>
+    </header>
+
+    <main class="workspace">
+      <section class="map-panel" aria-label="แผนที่และข้อมูลเส้นทาง">
+        <iframe id="google-map" title="Google Maps ตำแหน่งปลายทาง" src="https://maps.google.com/maps?q=13.7375,100.5604&amp;z=14&amp;output=embed" loading="eager" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+        <svg id="route-animation" class="route-animation" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="เส้นทางและตำแหน่งรถจำลอง" hidden>
+          <path id="map-route-halo" class="map-route-halo"/>
+          <path id="map-route-path" class="map-route-path"/>
+          <path id="map-route-travelled" class="map-route-travelled"/>
+          <g id="map-start-marker" class="map-start-marker"><circle r="8"/><circle r="3"/></g>
+          <g id="map-end-marker" class="map-end-marker"><circle r="11"/><path d="m-4 0 3 3 5-6"/></g>
+          <g id="map-rider" class="map-rider"><circle class="rider-pulse" r="24"/><circle class="rider-disc" r="17"/><svg x="-12" y="-12" width="24" height="24" viewBox="0 0 24 24"><use href="#i-bike"/></svg></g>
+        </svg>
+        <span id="route-label" class="route-label" hidden>เส้นทางจำลอง</span>
+        <div class="map-top"><a id="maps-link" class="map-open" href="https://www.google.com/maps/dir/?api=1&amp;origin=13.7383,100.5307&amp;destination=13.7375,100.5604&amp;travelmode=driving" target="_blank" rel="noopener noreferrer">เปิดแผนที่ ↗</a></div>
+        <div class="map-zoom" role="group" aria-label="ปรับมุมมองแผนที่"><button id="map-zoom-in" type="button" aria-label="ขยายแผนที่" title="ขยายแผนที่">+</button><button id="map-zoom-out" type="button" aria-label="ย่อแผนที่" title="ย่อแผนที่">−</button><button id="map-fit" type="button" aria-label="คืนค่ามุมมอง แสดงเส้นทางทั้งหมด" title="แสดงเส้นทางทั้งหมด"><svg><use href="#i-route"/></svg></button></div>
+        <span id="map-zoom-level" class="visually-hidden" role="status" aria-live="polite"></span>
+        <div class="map-bottom">
+          <div class="map-trip-card">
+            <div class="map-trip-heading"><span class="eyebrow">ภาพรวมการเดินทาง</span><span class="mini-badge">เส้นทางจำลอง</span></div>
+            <div class="map-stops"><span class="stop-dot origin-dot"></span><span id="map-origin">จุฬาลงกรณ์มหาวิทยาลัย</span><svg><use href="#i-arrow"/></svg><span class="stop-dot destination-dot"></span><span id="map-destination">เทอร์มินอล 21 อโศก</span></div>
+            <div class="journey-track"><span id="journey-fill"></span><span id="journey-bike"><svg><use href="#i-bike"/></svg></span></div>
+            <div class="map-trip-foot"><span id="map-route-status">พร้อมคำนวณเส้นทาง</span><span id="map-progress">0%</span></div>
+          </div>
+          <p class="map-caption">แผนที่จาก Google · เส้นทาง ระยะทาง และการเคลื่อนที่เป็นข้อมูลจำลอง</p>
+        </div>
+      </section>
+
+      <section class="control-panel" aria-label="คำนวณราคาและมิเตอร์">
+        <div id="panel-scroll" class="panel-scroll" tabindex="0" role="region" aria-label="รายละเอียดและควบคุมการเดินทาง">
+        <nav class="steps" aria-label="ขั้นตอนการเดินทาง"><span class="step active" id="step-1"><b>1</b> เส้นทาง</span><span class="step-line"></span><span class="step" id="step-2"><b>2</b> มิเตอร์</span><span class="step-line"></span><span class="step" id="step-3"><b>3</b> สรุป</span></nav>
+
+        <div id="setup-view" class="view">
+          <div class="section-heading"><p class="eyebrow">เริ่มต้นการเดินทาง</p><h1>เลือกปลายทาง</h1></div>
+          <form id="route-form">
+            <div class="locations">
+              <div class="location-field"><span class="location-marker"><span class="stop-dot origin-dot"></span><span class="location-connector"></span></span><label for="origin">จุดเริ่มต้น</label><input id="origin" name="origin" list="places" value="จุฬาลงกรณ์มหาวิทยาลัย" placeholder="ระบุจุดเริ่มต้น" autocomplete="off" maxlength="100" required></div>
+              <div class="location-field"><span class="location-marker"><span class="stop-dot destination-dot"></span></span><label for="destination">จุดหมายปลายทาง</label><input id="destination" name="destination" list="places" value="เทอร์มินอล 21 อโศก" placeholder="คุณต้องการไปที่ไหน?" autocomplete="off" maxlength="100" required></div>
+            </div>
+            <datalist id="places"><option value="จุฬาลงกรณ์มหาวิทยาลัย"><option value="สยามพารากอน"><option value="สามย่านมิตรทาวน์"><option value="สวนลุมพินี"><option value="เทอร์มินอล 21 อโศก"><option value="สถานีหัวลำโพง"><option value="เซ็นทรัลเวิลด์"><option value="อนุสาวรีย์ชัยสมรภูมิ"><option value="ตลาดนัดจตุจักร"></datalist>
+            <p id="form-error" class="form-error" role="alert" hidden></p>
+            <button class="button primary calculate-button" type="submit"><svg><use href="#i-route"/></svg><span id="calculate-label">คำนวณราคา</span><svg><use href="#i-arrow"/></svg></button>
+          </form>
+
+          <div id="estimate-card" class="estimate-card" hidden>
+            <div class="estimate-heading"><span><svg><use href="#i-shield"/></svg> ช่วงราคาที่ตกลงกัน</span></div>
+            <div class="estimate-price"><span id="estimate-min">35</span><span class="price-dash">–</span><span id="estimate-max">55</span><span class="currency">บาท</span></div>
+            <div class="estimate-metrics"><span><svg><use href="#i-route"/></svg><b id="estimate-distance">4.9</b> กม.</span><span><svg><use href="#i-clock"/></svg><b id="estimate-time">16</b> นาที</span><span class="fastest-label">เร็วที่สุด</span></div>
+            <details class="route-alternatives"><summary>เปรียบเทียบเส้นทางจำลอง <span>⌄</span></summary><div id="route-options"></div></details>
+            <p class="range-note">ราคาสุดท้ายจะอยู่ในช่วงนี้ แม้มิเตอร์จะต่ำกว่าหรือสูงกว่า</p>
+            <button type="button" id="start-trip" class="button primary">เริ่มเดินทาง <svg><use href="#i-arrow"/></svg></button>
+          </div>
+
+          <details class="fare-rules" id="fare-rules"><summary><span><svg><use href="#i-shield"/></svg>คิดค่าโดยสารอย่างไร</span><span>＋</span></summary><div class="rules-content"><div><span>ระยะทาง 2 กม. แรก</span><b>25 บาท</b></div><div><span>ส่วนที่เกิน 2 ถึง 5 กม.</span><b>5 บาท / กม.</b></div><div><span>ส่วนที่เกิน 5 กม.</span><b>10 บาท / กม.</b></div><div><span>เคลื่อนที่ไม่เกิน 0.4 กม. ใน 2 นาที</span><b>+5 บาท / รอบ</b></div><p>นับเวลาเป็นรอบละ 2 นาทีต่อเนื่อง ไม่คิดรอบที่ยังไม่ครบ คิดระยะทางตามจริงและปัดยอดรวมขึ้นเป็นบาท ใช้อัตราที่กำหนดสำหรับต้นแบบนี้</p></div></details>
+        </div>
+
+        <div id="meter-view" class="view" hidden>
+          <div class="section-heading meter-heading"><div><p class="eyebrow">กำลังเดินทาง</p><h1>มิเตอร์ของคุณ</h1></div><span id="meter-status" class="status-pill"><span class="live-dot"></span>กำลังวิ่ง</span></div>
+          <div class="locked-range"><svg><use href="#i-shield"/></svg><span>ช่วงราคาที่ตกลง</span><b id="locked-range">35–55 บาท</b></div>
+          <div class="meter-display"><span class="eyebrow">ค่าโดยสารตามมิเตอร์</span><div class="meter-price"><span id="meter-price">25</span><span>บาท</span></div><p id="meter-cap-note">ราคาสุดท้ายปรับให้อยู่ในช่วงที่ตกลง</p></div>
+          <div class="meter-stats"><div><svg><use href="#i-route"/></svg><b id="meter-distance">0.00</b><span>กิโลเมตร</span></div><div><svg><use href="#i-clock"/></svg><b id="meter-time">00:00</b><span>นาที : วินาที</span></div></div>
+          <div class="fare-breakdown"><div><span>ค่าระยะทาง</span><b id="distance-fee">25 บาท</b></div><div><span>ค่าเคลื่อนตัวช้า / หยุดรอ <small id="slow-count">0 รอบ</small></span><b id="time-fee">0 บาท</b></div></div>
+          <div id="slow-window" class="slow-window" hidden><div><span>รอบเวลา 2 นาทีปัจจุบัน</span><b id="window-time">00:00 / 02:00</b></div><progress id="window-progress" max="120" value="0" aria-label="ความคืบหน้ารอบเวลา 2 นาที"></progress><p id="window-info">เคลื่อนที่ 0.00 กม. · ถ้าไม่เกิน 0.40 กม. เมื่อครบรอบ เพิ่ม 5 บาท</p></div>
+        </div>
+
+        <div id="summary-view" class="view" hidden>
+          <div class="receipt-icon"><svg><use href="#i-check"/></svg></div><div class="section-heading summary-heading"><p class="eyebrow">สิ้นสุดการเดินทาง</p><p>ค่าโดยสารอยู่ในช่วงราคาที่ตกลงไว้</p></div>
+          <div class="receipt"><p class="eyebrow">ค่าโดยสารสุทธิ</p><div class="final-price"><span id="final-price">45</span><span>บาท</span></div><span class="receipt-range" id="receipt-range">ช่วงราคาที่ตกลง 35–55 บาท</span><div class="receipt-divider"></div><div class="receipt-route"><span id="receipt-origin"></span><span id="receipt-destination"></span></div><div class="receipt-details"><div><span>ระยะทางจริง (จำลอง)</span><b id="receipt-distance"></b></div><div><span>เวลาเดินทาง</span><b id="receipt-time"></b></div><div><span>ค่าระยะทาง</span><b id="receipt-distance-fee"></b></div><div><span id="receipt-slow-label">ค่าเคลื่อนตัวช้า / หยุดรอ</span><b id="receipt-time-fee"></b></div><div class="receipt-subtotal"><span>ยอดตามมิเตอร์</span><b id="receipt-meter"></b></div><div id="adjustment-row"><span id="adjustment-label">ปรับตามช่วงราคา</span><b id="receipt-adjustment"></b></div></div><div id="settlement-note" class="settlement-note"></div></div>
+          <button type="button" id="new-trip" class="button primary new-trip"><svg><use href="#i-reset"/></svg>เริ่มการเดินทางใหม่</button><p class="setup-footnote">ต้นแบบจำลอง · ไม่มีการเรียกเก็บเงินจริง</p>
+        </div>
+        </div>
+        <div id="trip-actions" class="trip-actions" hidden><button type="button" id="pause-trip" class="button secondary" aria-pressed="false">พักมิเตอร์</button><button type="button" id="finish-trip" class="button primary">ถึงที่หมาย <svg><use href="#i-check"/></svg></button></div>
+      </section>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="debug-settings" class="settings-dialog" aria-labelledby="settings-title" aria-describedby="settings-description">
+    <div class="settings-dialog-header"><span class="settings-dialog-icon"><svg><use href="#i-settings"/></svg></span><div><p class="eyebrow">DEBUG MODE</p><h2 id="settings-title">ตั้งค่าการทดลอง</h2></div><button id="close-settings" class="settings-close" type="button" aria-label="ปิดการตั้งค่า"><svg><use href="#i-close"/></svg></button></div>
+    <p id="settings-description" class="settings-description">ปรับมุมมองและการจำลองได้ โดยไม่ต้องเริ่มทริปใหม่</p>
+    <fieldset class="settings-group"><legend>การแสดงผล</legend>
+      <label class="switch-row" for="show-window"><span><b>รอบเวลา 2 นาทีปัจจุบัน</b><small>แสดงรายละเอียดรอบเวลาบนหน้ามิเตอร์</small></span><input id="show-window" type="checkbox" role="switch" aria-controls="slow-window"><span class="switch-track" aria-hidden="true"></span></label>
+      <label class="switch-row" for="show-pause"><span><b>ปุ่มพักมิเตอร์</b><small>แสดงปุ่มพักมิเตอร์ระหว่างเดินทาง</small></span><input id="show-pause" type="checkbox" role="switch" aria-controls="pause-trip" checked><span class="switch-track" aria-hidden="true"></span></label>
+      <label class="switch-row" for="phone-mode"><span><b>Mobile frame</b><small>แสดงแอปในกรอบ iPhone 16</small></span><input id="phone-mode" type="checkbox" role="switch" checked><span class="switch-track" aria-hidden="true"></span></label>
+    </fieldset>
+    <fieldset class="settings-group simulation-controls"><legend>ตัวควบคุมการจำลอง</legend><div class="simulation-fields"><label for="traffic">สภาพการจราจร<select id="traffic"><option value="auto">อัตโนมัติ</option><option value="normal">ขับปกติ · 24 กม./ชม.</option><option value="slow">รถติด · 4 กม./ชม.</option><option value="stopped">จอดรอ · 0 กม./ชม.</option></select></label><label for="simulation-speed">ความเร็วจำลอง<select id="simulation-speed"><option value="1">1× เวลาจริง</option><option value="10">10×</option><option value="30" selected>30×</option><option value="60">60×</option></select></label></div><p id="traffic-description">จำลองช่วงขับปกติ สลับรถติดและหยุดรอ</p></fieldset>
+    <p class="settings-hint"><svg><use href="#i-shield"/></svg>การซ่อนรอบเวลาไม่มีผลต่อการคิดค่าโดยสาร</p>
+    <form method="dialog"><button class="button primary" type="submit">เสร็จสิ้น <svg><use href="#i-check"/></svg></button></form>
+  </dialog>
+</body>
+</html>
