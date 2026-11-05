@@ -4,6 +4,7 @@
   const toggle = document.getElementById('toggle-frame');
   const versionSwitch = document.getElementById('prototype-version');
   const requestedVersion = new URLSearchParams(window.location.search).get('prototype');
+  const requestedFrame = new URLSearchParams(window.location.search).get('frame');
   let prototypeVersion = '2';
   let phoneMode = !window.matchMedia('(max-width: 899px), (max-height: 500px)').matches;
   try {
@@ -13,6 +14,15 @@
     if (['1', '2'].includes(savedVersion)) prototypeVersion = savedVersion;
   } catch { /* Storage may be disabled for local files. */ }
   if (['1', '2'].includes(requestedVersion)) prototypeVersion = requestedVersion;
+  if (['on', 'off'].includes(requestedFrame)) phoneMode = requestedFrame === 'on';
+  function savePhoneMode() {
+    try { localStorage.setItem('winsure.phoneMode', String(phoneMode)); } catch { /* Keep the in-memory choice. */ }
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('frame', phoneMode ? 'on' : 'off');
+      window.history.replaceState(null, '', url);
+    } catch { /* Local-file previews can restrict history updates. */ }
+  }
   function resize() {
     const stage = document.getElementById('preview-stage');
     const style = getComputedStyle(stage);
@@ -34,13 +44,13 @@
     if (event.data.type === 'winsure:ready') sync();
     if (event.data.type === 'winsure:phone-mode' && typeof event.data.phoneMode === 'boolean') {
       phoneMode = event.data.phoneMode;
-      try { localStorage.setItem('winsure.phoneMode', String(phoneMode)); } catch { /* Use the in-memory choice. */ }
+      savePhoneMode();
       sync();
     }
   });
   toggle.addEventListener('click', () => {
     phoneMode = !phoneMode;
-    try { localStorage.setItem('winsure.phoneMode', String(phoneMode)); } catch { /* Keep the in-memory choice. */ }
+    savePhoneMode();
     sync();
   });
   versionSwitch.addEventListener('change', () => {

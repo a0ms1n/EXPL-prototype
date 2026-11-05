@@ -49,9 +49,16 @@
   $('simulation-speed').addEventListener('change', () => { preferences.speed = $('simulation-speed').value; save(); });
   $('phone-mode').addEventListener('change', () => {
     const phoneMode = $('phone-mode').checked;
-    document.body.classList.toggle('phone-mode', phoneMode);
     try { localStorage.setItem('winsure.phoneMode', String(phoneMode)); } catch { /* Keep working without persistence. */ }
-    if (window.parent !== window) window.parent.postMessage({ type: 'winsure:phone-mode', phoneMode }, '*');
+    if (window.parent !== window) {
+      // The host resizes the iframe, then confirms the display mode below.
+      window.parent.postMessage({ type: 'winsure:phone-mode', phoneMode }, '*');
+    } else {
+      const preview = new URL('index.html', window.location.href);
+      preview.search = window.location.search;
+      preview.searchParams.set('frame', phoneMode ? 'on' : 'off');
+      window.location.replace(preview.href);
+    }
   });
   window.addEventListener('message', event => {
     if (event.source !== window.parent || !event.data || event.data.type !== 'winsure:display-mode' || typeof event.data.phoneMode !== 'boolean') return;
