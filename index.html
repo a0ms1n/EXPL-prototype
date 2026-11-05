@@ -11,16 +11,17 @@
 </head>
 <body>
   <nav class="preview-toolbar" aria-label="Prototype options">
-    <select id="prototype-version" class="version-switch" aria-label="Prototype version">
-      <option value="1">Prototype 1</option>
-      <option value="2" selected>Prototype 2</option>
+    <select id="prototype-version" class="version-switch" aria-label="Choose old or new prototype">
+      <option value="1">Old prototype</option>
+      <option value="2" selected>New prototype</option>
     </select>
+    <span id="passenger-view-label" class="passenger-view-label" hidden>Passenger view</span>
     <button id="toggle-frame" class="frame-toggle" type="button" aria-pressed="false">Mobile frame: Off</button>
   </nav>
   <main id="preview-stage" class="preview-stage" aria-label="ต้นแบบค่าโดยสาร">
     <div class="phone-frame">
       <span class="frame-button frame-silent" aria-hidden="true"></span><span class="frame-button frame-volume-up" aria-hidden="true"></span><span class="frame-button frame-volume-down" aria-hidden="true"></span><span class="frame-button frame-power" aria-hidden="true"></span><span class="frame-button frame-camera" aria-hidden="true"></span>
-      <div class="phone-screen"><iframe id="app-preview" src="app.html" title="แอปคำนวณค่าโดยสาร" allowfullscreen></iframe><div class="home-indicator" aria-hidden="true"><span></span></div></div>
+      <div class="phone-screen"><iframe id="app-preview" src="about:blank" title="แอปคำนวณค่าโดยสาร" allowfullscreen></iframe><div class="home-indicator" aria-hidden="true"><span></span></div></div>
     </div>
   </main>
 </body>

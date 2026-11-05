@@ -12,6 +12,7 @@ function openEntry(href, { embedded = false } = {}) {
   const window = {
     location: {
       href: url.href,
+      pathname: url.pathname,
       search: url.search,
       hash: url.hash,
       replace(destination) { navigations.push(destination); }
@@ -55,8 +56,41 @@ test('opening a local app file also uses its sibling preview without losing pref
 test('the app inside its host iframe never redirects or creates a preview loop', () => {
   for (const href of [
     'https://user.github.io/project/app.html?prototype=1',
-    'file:///home/demo/Prototype/app.html?prototype=2'
+    'file:///home/demo/Prototype/app.html?prototype=2',
+    'https://user.github.io/project/customer.html?frame=on#ride=abc_-123',
+    'file:///home/demo/Prototype/customer.html#ride=abc_-123'
   ]) assert.deepEqual(openEntry(href, { embedded: true }), []);
+});
+
+test('direct passenger links use the shared host while retaining the self-contained ride hash', () => {
+  for (const href of [
+    'https://user.github.io/nested/project/customer.html?prototype=1&frame=on#ride=abc_-123',
+    'https://user.github.io/project/customer.html?view=rider&frame=off&name=%E0%B8%A7%E0%B8%B4%E0%B8%99%20demo#ride=snapshot',
+    'file:///home/demo/Hidden%20Desktop/Prototype/customer.html?frame=on#ride=local_snapshot'
+  ]) {
+    const input = new URL(href);
+    const navigations = openEntry(href);
+    assert.equal(navigations.length, 1);
+    const redirected = new URL(navigations[0]);
+    assert.equal(redirected.pathname, new URL('index.html', input).pathname);
+    assert.equal(redirected.protocol, input.protocol);
+    assert.equal(redirected.origin, input.origin);
+    assert.equal(redirected.searchParams.get('view'), 'passenger');
+    for (const [key, value] of input.searchParams) {
+      if (key !== 'view') assert.equal(redirected.searchParams.get(key), value);
+    }
+    assert.equal(redirected.hash, input.hash);
+  }
+});
+
+test('passenger entry guard is synchronous and home links leave the host iframe', () => {
+  const html = fs.readFileSync(path.join(__dirname, '../customer.html'), 'utf8');
+  const firstScript = [...html.matchAll(/<script\b([^>]*)>/gi)][0];
+  assert.match(firstScript[1], /\bsrc=["']frame-entry\.js["']/);
+  assert.doesNotMatch(firstScript[1], /\b(?:async|defer|type=["']module["'])\b/i);
+  const homeLinks = [...html.matchAll(/<a\b[^>]*>/gi)].filter(link => /\bhref=["']\.\/index\.html["']/.test(link[0]));
+  assert.equal(homeLinks.length, 3);
+  for (const link of homeLinks) assert.match(link[0], /\btarget=["']_top["']/);
 });
 
 test('the direct-entry guard runs synchronously before app assets initialize', () => {

@@ -4,9 +4,9 @@
 
 `PrototypeV2` adds a passenger page while keeping the original rider calculator and meter.
 
-Use the **Prototype 1 / Prototype 2** dropdown at the top of `index.html` to compare versions. Prototype 1 shows the original rider calculator and meter; Prototype 2 adds QR sharing, rider details, and the customer page. Switching preserves the current trip and mobile frame setting. The selection is saved locally, and `index.html?prototype=1` or `index.html?prototype=2` opens a specific version.
+Use the **Old prototype / New prototype** dropdown at the top of `index.html` to compare versions. Old prototype (V1) restores the original interface with the rider calculator and meter. New prototype (V2) uses the refreshed green interface and adds QR sharing, rider details, and the customer page. Both versions use a ฿15 starting fare for the first 2 km. Switching preserves the current trip and mobile frame setting. The selection is saved locally, and `index.html?prototype=1` or `index.html?prototype=2` opens a specific version.
 
-Opening `app.html` directly redirects to the same `index.html` preview host, preserving query parameters. This ensures the Mobile frame switch resizes the actual app viewport. Use `index.html?frame=on` for a phone-sized preview or `index.html?frame=off` for the full-window view; prototype and frame parameters can be combined. Both the top toolbar and the in-app settings control the same frame, and toggling preserves an active trip.
+Opening `app.html` directly redirects to the same `index.html` preview host, preserving query parameters. This ensures the Mobile frame switch resizes the actual app viewport. Use `index.html?frame=on` for a phone-sized preview or `index.html?frame=off` for the full-window view; prototype and frame parameters can be combined. Both the top toolbar and the in-app settings control the same frame, and toggling preserves an active trip. Passenger links also open in the shared host (`index.html?view=passenger#ride=…`) with a **Mobile frame: On / Off** toggle. Their ride snapshot survives the redirect, reload, and frame changes. The passenger’s home links return to the rider page at the top level.
 
 1. Open `index.html` and press **คำนวณราคา**. Every successful calculation creates a new ride ID, a QR code, and a customer link. Editing either place invalidates the estimate and cancels its unused ride link; calculating again creates a fresh ride.
 2. Scan the QR or press **เปิดหน้าผู้โดยสาร**. **QR ผู้โดยสาร** in the header opens an enlarged QR at any trip stage. Each calculation randomly assigns one of five mock riders (สมชาย ใจดี, วิชัย สุขสวัสดิ์, อนันต์ รุ่งเรือง, สุดา พูนทรัพย์, or กิตติพงษ์ มั่นคง). The assigned rider stays with that ride and its QR link. The customer page shows the agreed fare range, simulated current position, progress, rider profile, vehicle/plate, rating, and example reviews. Reviews are isolated by rider.
@@ -37,14 +37,14 @@ Open `index.html` directly in a browser. No installation, build, API key, or bac
 
 ## Fare rules
 
-- First 2 km: ฿25.
+- First 2 km: ฿15.
 - Distance above 2 km up to 5 km: ฿5/km.
 - Distance above 5 km: ฿10/km.
 - Each completed, non-overlapping two-minute travel window adds ฿5 if movement during that window is **0.4 km or less**, including exactly 0.4 km. Incomplete windows do not charge; pausing freezes simulated time and distance.
 - Distance is charged proportionally. The total meter amount is rounded up to a whole baht.
 - Final fare: `min(estimated maximum, max(estimated minimum, meter amount))`.
 
-The prediction uses the same meter rules with the route’s estimated average speed, then applies a ±฿7 margin with a ฿25 minimum. This range is not recalculated during the trip.
+The prediction uses the same meter rules with the route’s estimated average speed, then applies a ±฿7 margin with a ฿15 minimum. This range is not recalculated during the trip.
 
 Google Maps is the map background. A simulated route, origin/destination markers, and a moving motorcycle are drawn over it. The motorcycle and completed route follow the meter distance, freeze when paused or waiting, and stop at the actual simulated trip endpoint. Use the **+ / −** buttons to zoom and the route button below them to fit the complete route again. Zoom controls work before and during trips and keep the route overlay aligned without changing trip progress. The embedded map reloads briefly when its zoom changes. Direct panning is locked while a route is visible; the **เปิดแผนที่ ↗** link opens a separate interactive Google Maps view. Route comparisons, coordinates for unlisted places, time, and movement are simulated locally; they do not use Google's routing, geocoding, traffic, or live GPS. Known Bangkok destinations have preset coordinates; custom names receive reproducible fictional coordinates, with a notification.
 
@@ -70,7 +70,9 @@ Settings are saved locally when browser storage is available. Close the pop-up w
 - `settings.js`: debug settings and local preferences.
 - `styles.css`: responsive desktop and mobile layouts.
 - `fonts.css`, `fonts/`: locally hosted Sarabun Thai fonts and SIL Open Font License.
-- `theme.css`: shared green interface, clearer type hierarchy, spacing, contrast, and larger controls.
+- `theme.css`: refreshed green interface; disabled in Old prototype to restore the original look.
+- `frame-layout.css`: phone layout and accessible map/meter controls retained in both skins.
+- `frame-entry.js`: direct rider/passenger links enter the same real iframe preview host.
 - `fare.js`: independently testable fare and meter calculations.
 - `map.js`: simulated route projection and animated motorcycle overlay.
 - `app.js`: route mock, meter simulation, and trip flow.

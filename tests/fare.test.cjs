@@ -3,9 +3,16 @@ const assert = require('node:assert/strict');
 const Fare = require('../fare.js');
 
 test('distance pricing covers both tier boundaries and fractional kilometres', () => {
-  for (const [km, expected] of [[0, 25], [1, 25], [2, 25], [2.5, 27.5], [5, 40], [5.5, 45], [8, 70]]) {
+  for (const [km, expected] of [[0, 15], [1, 15], [2, 15], [2.5, 17.5], [5, 30], [5.5, 35], [8, 60]]) {
     assert.equal(Fare.distanceFare(km), expected, `${km} km`);
   }
+});
+
+test('the meter starts at 15 baht and short-route estimates retain that minimum', () => {
+  assert.equal(Fare.RULES.base, 15);
+  assert.equal(Fare.meterTotal(Fare.createMeter()), 15);
+  assert.deepEqual(Fare.estimate(0.5, 1.25), { min: 15, max: 22, distanceFare: 15 });
+  assert.deepEqual(Fare.settle(Fare.createMeter(), { min: 15, max: 22 }), { raw: 15, total: 15, adjustment: 0 });
 });
 
 test('partial two-minute windows do not charge', () => {
@@ -89,12 +96,12 @@ test('meter combines distance and time fees and rounds up only once', () => {
   const meter = Fare.createMeter();
   meter.km = 2.11;
   meter.slowFee = 5;
-  assert.equal(Fare.meterTotal(meter), 31);
+  assert.equal(Fare.meterTotal(meter), 21);
 });
 
 test('final fare clamps below minimum, above maximum, and retains an in-range fare', () => {
   const range = { min: 40, max: 60 };
-  for (const [km, total, adjustment] of [[0, 40, 15], [5.5, 45, 0], [8, 60, -10]]) {
+  for (const [km, total, adjustment] of [[0, 40, 25], [5.5, 40, 5], [7, 50, 0], [8, 60, 0], [9, 60, -10]]) {
     const meter = Fare.createMeter();
     meter.km = km;
     assert.deepEqual(Fare.settle(meter, range), { raw: Fare.meterTotal(meter), total, adjustment });
@@ -104,7 +111,7 @@ test('final fare clamps below minimum, above maximum, and retains an in-range fa
 test('estimates enclose the distance fare for short and long routes', () => {
   for (const km of [0.5, 2, 3.4, 5, 7.8, 15, 30]) {
     const range = Fare.estimate(km, km * 4);
-    assert.ok(range.min >= 25);
+    assert.ok(range.min >= 15);
     assert.ok(range.max >= range.min);
     assert.ok(range.max >= Fare.distanceFare(km));
   }
@@ -117,8 +124,8 @@ test('invalid distance, speed, and time inputs fail explicitly', () => {
 });
 
 test('predictions apply a 7 baht margin around the projected meter with a base-fare floor', () => {
-  assert.deepEqual(Fare.estimate(4.9, 16), { min: 33, max: 47, distanceFare: 40 });
-  assert.deepEqual(Fare.estimate(2, 10), { min: 43, max: 57, distanceFare: 25 });
-  assert.deepEqual(Fare.estimate(0.3, 3), { min: 25, max: 37, distanceFare: 25 });
+  assert.deepEqual(Fare.estimate(4.9, 16), { min: 23, max: 37, distanceFare: 30 });
+  assert.deepEqual(Fare.estimate(2, 10), { min: 33, max: 47, distanceFare: 15 });
+  assert.deepEqual(Fare.estimate(0.3, 3), { min: 15, max: 27, distanceFare: 15 });
   for (const minutes of [-1, NaN, Infinity]) assert.throws(() => Fare.estimate(2, minutes), RangeError);
 });

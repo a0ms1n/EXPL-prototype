@@ -1,7 +1,7 @@
 (function (root) {
   'use strict';
 
-  const RULES = Object.freeze({ base: 25, firstKm: 2, middleKm: 5, middleRate: 5, upperRate: 10, windowSeconds: 120, slowKm: 0.4, slowFee: 5 });
+  const RULES = Object.freeze({ base: 15, firstKm: 2, middleKm: 5, middleRate: 5, upperRate: 10, windowSeconds: 120, slowKm: 0.4, slowFee: 5 });
 
   function distanceFare(km) {
     if (!Number.isFinite(km) || km < 0) throw new RangeError('Distance must be a nonnegative number.');

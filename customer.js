@@ -307,5 +307,10 @@
   window.addEventListener('pagehide', () => { if (unsubscribe) unsubscribe(); if (timer) clearInterval(timer); });
   window.addEventListener('pageshow', event => { if (event.persisted) window.location.reload(); });
   window.addEventListener('hashchange', () => window.location.reload());
+  window.addEventListener('message', event => {
+    if (event.source !== window.parent || !event.data || event.data.type !== 'winsure:display-mode' || typeof event.data.phoneMode !== 'boolean') return;
+    document.body.classList.toggle('phone-mode', event.data.phoneMode);
+  });
   initialize();
+  if (window.parent !== window) window.parent.postMessage({ type: 'winsure:ready' }, '*');
 })();

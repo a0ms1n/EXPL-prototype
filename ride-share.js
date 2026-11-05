@@ -52,10 +52,10 @@
       ridersById.has(record.riderId) && number(record.createdAt, 1, 1e15) &&
       number(record.updatedAt, record.createdAt, 1e15) && validPoint(record.origin) && validPoint(record.destination) &&
       record.route && text(record.route.name, 100) && number(record.route.km, 0.01, 1000) && number(record.route.minutes, 0.01, 10000) &&
-      record.range && number(record.range.min, 25, 1e6) && number(record.range.max, record.range.min, 1e6) &&
+      record.range && number(record.range.min, Fare.RULES.base, 1e6) && number(record.range.max, record.range.min, 1e6) &&
       ['ready', 'riding', 'paused', 'completed', 'cancelled'].includes(record.status) &&
       number(record.km, 0, record.route.km) && number(record.seconds, 0, 1e8) &&
-      number(record.rawFare, 25, 1e8) && number(record.total, 25, 1e8));
+      number(record.rawFare, Fare.RULES.base, 1e8) && number(record.total, Fare.RULES.base, 1e8));
   }
 
   function randomRider() {
@@ -76,7 +76,7 @@
       origin: clone(trip.origin), destination: clone(trip.destination),
       route: { name: trip.route.name, km: trip.route.km, minutes: trip.route.minutes },
       range: { min: trip.range.min, max: trip.range.max },
-      status: 'ready', km: 0, seconds: 0, rawFare: 25, total: 25 };
+      status: 'ready', km: 0, seconds: 0, rawFare: Fare.RULES.base, total: Fare.RULES.base };
     if (!valid(record)) throw new RangeError('Invalid ride details.');
     return record;
   }
@@ -219,7 +219,7 @@
 
   function newDemo(record) {
     if (!valid(record)) throw new RangeError('Invalid ride.');
-    return { ...clone(record), status: 'riding', km: 0, seconds: 0, rawFare: 25, total: 25,
+    return { ...clone(record), status: 'riding', km: 0, seconds: 0, rawFare: Fare.RULES.base, total: Fare.RULES.base,
       meter: Fare.createMeter(), updatedAt: Math.max(Date.now(), record.createdAt) };
   }
 

@@ -8,7 +8,8 @@
   <script src="frame-entry.js"></script>
   <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="theme.css">
+  <link id="modern-theme" rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="frame-layout.css">
   <script src="fare.js" defer></script>
   <script src="qrcode.js" defer></script>
   <script src="ride-share.js" defer></script>
@@ -89,15 +90,15 @@
             <button type="button" id="start-trip" class="button primary">เริ่มเดินทาง <svg><use href="#i-arrow"/></svg></button>
           </div>
 
-          <details class="fare-rules" id="fare-rules"><summary><span><svg><use href="#i-shield"/></svg>คิดค่าโดยสารอย่างไร</span><span>＋</span></summary><div class="rules-content"><div><span>ระยะทาง 2 กม. แรก</span><b>25 บาท</b></div><div><span>ส่วนที่เกิน 2 ถึง 5 กม.</span><b>5 บาท / กม.</b></div><div><span>ส่วนที่เกิน 5 กม.</span><b>10 บาท / กม.</b></div><div><span>เคลื่อนที่ไม่เกิน 0.4 กม. ใน 2 นาที</span><b>+5 บาท / รอบ</b></div><p>นับเวลาเป็นรอบละ 2 นาทีต่อเนื่อง ไม่คิดรอบที่ยังไม่ครบ คิดระยะทางตามจริงและปัดยอดรวมขึ้นเป็นบาท ใช้อัตราที่กำหนดสำหรับต้นแบบนี้</p></div></details>
+          <details class="fare-rules" id="fare-rules"><summary><span><svg><use href="#i-shield"/></svg>คิดค่าโดยสารอย่างไร</span><span>＋</span></summary><div class="rules-content"><div><span>ระยะทาง 2 กม. แรก</span><b>15 บาท</b></div><div><span>ส่วนที่เกิน 2 ถึง 5 กม.</span><b>5 บาท / กม.</b></div><div><span>ส่วนที่เกิน 5 กม.</span><b>10 บาท / กม.</b></div><div><span>เคลื่อนที่ไม่เกิน 0.4 กม. ใน 2 นาที</span><b>+5 บาท / รอบ</b></div><p>นับเวลาเป็นรอบละ 2 นาทีต่อเนื่อง ไม่คิดรอบที่ยังไม่ครบ คิดระยะทางตามจริงและปัดยอดรวมขึ้นเป็นบาท ใช้อัตราที่กำหนดสำหรับต้นแบบนี้</p></div></details>
         </div>
 
         <div id="meter-view" class="view" hidden>
           <div class="section-heading meter-heading"><div><p class="eyebrow">กำลังเดินทาง</p><h1>มิเตอร์ของคุณ</h1></div><span id="meter-status" class="status-pill"><span class="live-dot"></span>กำลังวิ่ง</span></div>
           <div class="locked-range"><svg><use href="#i-shield"/></svg><span>ช่วงราคาที่ตกลง</span><b id="locked-range">35–55 บาท</b></div>
-          <div class="meter-display"><span class="eyebrow">ค่าโดยสารตามมิเตอร์</span><div class="meter-price"><span id="meter-price">25</span><span>บาท</span></div><p id="meter-cap-note">ราคาสุดท้ายปรับให้อยู่ในช่วงที่ตกลง</p></div>
+          <div class="meter-display"><span class="eyebrow">ค่าโดยสารตามมิเตอร์</span><div class="meter-price"><span id="meter-price">15</span><span>บาท</span></div><p id="meter-cap-note">ราคาสุดท้ายปรับให้อยู่ในช่วงที่ตกลง</p></div>
           <div class="meter-stats"><div><svg><use href="#i-route"/></svg><b id="meter-distance">0.00</b><span>กิโลเมตร</span></div><div><svg><use href="#i-clock"/></svg><b id="meter-time">00:00</b><span>นาที : วินาที</span></div></div>
-          <div class="fare-breakdown"><div><span>ค่าระยะทาง</span><b id="distance-fee">25 บาท</b></div><div><span>ค่าเคลื่อนตัวช้า / หยุดรอ <small id="slow-count">0 รอบ</small></span><b id="time-fee">0 บาท</b></div></div>
+          <div class="fare-breakdown"><div><span>ค่าระยะทาง</span><b id="distance-fee">15 บาท</b></div><div><span>ค่าเคลื่อนตัวช้า / หยุดรอ <small id="slow-count">0 รอบ</small></span><b id="time-fee">0 บาท</b></div></div>
           <div id="slow-window" class="slow-window" hidden><div><span>รอบเวลา 2 นาทีปัจจุบัน</span><b id="window-time">00:00 / 02:00</b></div><progress id="window-progress" max="120" value="0" aria-label="ความคืบหน้ารอบเวลา 2 นาที"></progress><p id="window-info">เคลื่อนที่ 0.00 กม. · ถ้าไม่เกิน 0.40 กม. เมื่อครบรอบ เพิ่ม 5 บาท</p></div>
         </div>
 

@@ -3,6 +3,7 @@
   const frame = document.getElementById('app-preview');
   const toggle = document.getElementById('toggle-frame');
   const versionSwitch = document.getElementById('prototype-version');
+  const passengerView = new URLSearchParams(window.location.search).get('view') === 'passenger';
   const requestedVersion = new URLSearchParams(window.location.search).get('prototype');
   const requestedFrame = new URLSearchParams(window.location.search).get('frame');
   let prototypeVersion = '2';
@@ -15,6 +16,13 @@
   } catch { /* Storage may be disabled for local files. */ }
   if (['1', '2'].includes(requestedVersion)) prototypeVersion = requestedVersion;
   if (['on', 'off'].includes(requestedFrame)) phoneMode = requestedFrame === 'on';
+  versionSwitch.hidden = passengerView;
+  document.getElementById('passenger-view-label').hidden = !passengerView;
+  if (passengerView) {
+    document.title = 'การเดินทางของคุณ · SC-09';
+    frame.title = 'รายละเอียดการเดินทางสำหรับผู้โดยสาร';
+    document.getElementById('preview-stage').setAttribute('aria-label', 'หน้าผู้โดยสาร');
+  }
   function savePhoneMode() {
     try { localStorage.setItem('winsure.phoneMode', String(phoneMode)); } catch { /* Keep the in-memory choice. */ }
     try {
@@ -64,8 +72,17 @@
     sync();
   });
   frame.addEventListener('load', sync);
+  window.addEventListener('hashchange', () => {
+    const destination = new URL(frame.src);
+    destination.hash = window.location.hash;
+    frame.src = destination.href;
+  });
   window.addEventListener('resize', resize);
   if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
   if (typeof ResizeObserver === 'function') new ResizeObserver(resize).observe(document.getElementById('preview-stage'));
+  const destination = new URL(passengerView ? 'customer.html' : 'app.html', window.location.href);
+  destination.search = window.location.search;
+  destination.hash = window.location.hash;
+  frame.src = destination.href;
   sync();
 })();

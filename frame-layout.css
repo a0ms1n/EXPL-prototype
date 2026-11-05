@@ -1,0 +1,29 @@
+/* Keep the working phone layout in both the original and refreshed skins. */
+@media (max-width: 899px) {
+  .control-panel { margin-top: 0; }
+  .map-top { justify-content: flex-start; }
+  .map-zoom { top: 12px; right: 12px; transform: none; flex-direction: row; }
+  .map-zoom button { width: 44px; height: 44px; }
+  .map-zoom button + button { border-top: 0; border-left: 1px solid var(--line); }
+  .control-panel .trip-actions { padding: 12px 16px max(12px, env(safe-area-inset-bottom)); }
+  .phone-mode .control-panel .trip-actions { padding-bottom: 12px; }
+  .trip-actions .button { padding: 11px 12px; font-size: 14px; }
+  body[data-trip-state="meter"] .workspace { --map-height: clamp(128px, 19dvh, 170px); }
+  body[data-trip-state="meter"] .map-bottom,
+  body[data-trip-state="meter"] .steps,
+  body[data-trip-state="meter"] .meter-heading .eyebrow,
+  body[data-trip-state="meter"] .route-label { display: none; }
+  .meter-heading { margin-bottom: 12px; }
+  .meter-display { padding: 14px 0; }
+  .meter-price { line-height: 1.2; }
+}
+@media (max-height: 500px) and (max-width: 899px) {
+  .phone-mode .phone-statusbar { display: none; }
+  .control-panel .trip-actions, .phone-mode .control-panel .trip-actions { padding: 8px 12px; }
+  .trip-actions .button { min-height: 46px; padding: 10px 12px; font-size: 14px; }
+  body[data-trip-state="meter"] .meter-heading { display: none; }
+  .meter-display { padding: 8px 0; }
+  .meter-price > span:first-child { font-size: 52px; }
+  .meter-display > p { display: none; }
+  .map-zoom { right: 10px; }
+}

@@ -224,7 +224,7 @@ test('malformed, unsupported, and incorrectly typed QR snapshots are rejected', 
   change(5, ['Destination', 13, 100, 'extra']);
   for (const route of [['Route', 0, 18], ['Route', -1, 18], ['Route', 4, 0], ['Route', '4', 18]]) change(6, route);
   change(7, [46, 32]);
-  change(7, [24, 30]);
+  change(7, [14, 30]);
   change(7, { 0: 25, 1: 35, length: 2 });
   change(8, 'unknown');
   change(9, -1);
@@ -249,7 +249,7 @@ test('storage updates stay isolated by ride and unsubscribe removes listeners', 
   assert.equal(updates.length, 1);
   assert.equal(sender.api.save(b), true);
   assert.equal(updates.length, 1);
-  const next = { ...a, status: 'riding', km: 1.2, seconds: 180, rawFare: 25, total: 25, updatedAt: a.updatedAt + 1 };
+  const next = { ...a, status: 'riding', km: 1.2, seconds: 180, rawFare: 15, total: 15, updatedAt: a.updatedAt + 1 };
   sender.api.save(next);
   assert.equal(updates.length, 2);
   assert.equal(updates[1].km, 1.2);
@@ -398,6 +398,75 @@ test('blocked browser storage preserves a usable ride and review in memory', () 
   const otherDevice = device({ blockedStorage: true }).api;
   assert.equal(otherDevice.decode(new URL(api.customerURL(done)).hash).id, ride.id);
   assert.equal(otherDevice.read(ride.id), null);
+});
+
+test('15-baht snapshots, demos, completion and reviews work across devices and storage', () => {
+  const hub = storageHub();
+  const { api } = device({ hub });
+  const input = trip();
+  input.route = { name: 'เส้นทางระยะสั้น', km: 0.5, minutes: 1.25 };
+  input.range = { min: 15, max: 22 };
+  const ride = api.create(input);
+  assert.equal(ride.rawFare, 15);
+  assert.equal(ride.total, 15);
+  assert.equal(api.save(ride), true);
+  const receiving = device({ hub }).api;
+  const decoded = receiving.decode(new URL(api.customerURL(ride)).hash);
+  assert.equal(decoded.rawFare, 15);
+  assert.equal(decoded.total, 15);
+  assert.deepEqual(clone(decoded.range), { min: 15, max: 22 });
+  assert.equal(receiving.read(ride.id).total, 15);
+  const demo = api.newDemo(decoded);
+  assert.equal(demo.status, 'riding');
+  assert.equal(demo.rawFare, 15);
+  assert.equal(demo.total, 15);
+  const completed = api.simulate(demo, 10000);
+  assert.equal(completed.status, 'completed');
+  assert.equal(completed.rawFare, 15);
+  assert.equal(completed.total, 15);
+  assert.equal(api.save(completed), true);
+  assert.equal(receiving.read(ride.id).status, 'completed');
+  assert.equal(receiving.read(ride.id).total, 15);
+
+  for (const changes of [{ rawFare: 14 }, { total: 14 }, { range: { min: 14, max: 22 } }]) {
+    const invalid = { ...completed, ...changes };
+    assert.throws(() => api.encode(invalid), rangeError);
+    assert.throws(() => api.save(invalid), rangeError);
+    assert.throws(() => api.newDemo(invalid), rangeError);
+    assert.throws(() => api.simulate(invalid, 1), rangeError);
+    assert.throws(() => api.submitReview(invalid, { rating: 5, comment: '' }), rangeError);
+  }
+  for (const [index, value] of [[7, [14, 22]], [11, 14], [12, 14]]) {
+    const malformed = payloadData(api.encode(completed));
+    malformed[index] = value;
+    assert.equal(receiving.decode(payloadHash(malformed)), null, `reject fare floor at payload field ${index}`);
+  }
+  assert.throws(() => api.create({ ...input, range: { min: 14, max: 22 } }), rangeError);
+  const review = api.submitReview(completed, { rating: 5, comment: 'ค่าโดยสารเริ่มต้น 15 บาท' });
+  assert.equal(review.persistent, true);
+  assert.equal(receiving.getReview(ride.id).comment, 'ค่าโดยสารเริ่มต้น 15 บาท');
+});
+
+test('previous 25-baht QR snapshots remain valid and retain their agreed fare range', () => {
+  const hub = storageHub();
+  const { api } = device({ hub });
+  const legacy = {
+    ...api.create(trip()),
+    id: 'legacy-trip-25',
+    route: { name: 'เส้นทางเดิม', km: 0.5, minutes: 1.25 },
+    range: { min: 25, max: 32 }, rawFare: 25, total: 25
+  };
+  const receiver = device({ hub }).api;
+  const imported = receiver.decode(api.encode(legacy));
+  assert.ok(imported);
+  assert.equal(imported.rawFare, 25);
+  assert.equal(imported.total, 25);
+  assert.deepEqual(clone(imported.range), { min: 25, max: 32 });
+  assert.equal(api.save(imported), true);
+  assert.equal(receiver.read(legacy.id).total, 25);
+  const completedDemo = api.simulate(api.newDemo(imported), 10000);
+  assert.equal(completedDemo.rawFare, 15);
+  assert.equal(completedDemo.total, 25, 'the original agreed minimum stays locked');
 });
 
 test('local QR encoder handles normal and maximum-length Thai trip links', () => {

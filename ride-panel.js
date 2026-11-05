@@ -88,6 +88,8 @@
 
   function applyVersion() {
     document.body.dataset.prototype = prototypeVersion;
+    // Old mode restores the original interface as well as the rider-only flow.
+    $('modern-theme').disabled = prototypeVersion === '1';
     const visible = prototypeVersion === '2' && Boolean(record);
     $('ride-share-card').hidden = !visible;
     $('open-ride-qr').hidden = !visible;

@@ -314,6 +314,7 @@ body { height: 100dvh; overflow: hidden; display: flex; flex-direction: column; 
 .ride-qr-dialog { box-sizing: border-box; width: min(520px, calc(100% - 24px)); max-height: calc(100dvh - 28px); margin: auto; padding: 20px; border: 1px solid #dce5d4; border-radius: 20px; background: white; color: var(--green); overflow-y: auto; }
 .ride-qr-dialog::backdrop { background: #172b2370; backdrop-filter: blur(4px); }
 #ride-qr-large { width: 100%; margin-top: 12px; background: white; }
+body[data-prototype="1"] .brand-symbol, body[data-prototype="1"] .brand small { display: none; }
 .ride-qr-dialog .button { text-decoration: none; }
 @media (max-width: 420px) {
   .header-tools { gap: 5px; }.share-header-button { font-size: 10px; padding: 5px 8px; }
