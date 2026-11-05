@@ -23,6 +23,8 @@ New files: `customer.html`, `customer.css`, `customer.js` (passenger view); `rid
 
 Run all protocol and existing fare tests with `node --test tests/*.test.cjs`. To deploy this branch using the existing workflow, push `PrototypeV2`, enable GitHub Pages with **GitHub Actions**, then manually run **Deploy GitHub Pages** with `PrototypeV2` selected under **Run workflow**. Automatic push deployment continues to use `main`. No push or deployment is performed by these local changes.
 
+If Pages deployment stays at `updating_pages` and times out, check **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**. A separate run named **pages build and deployment** is GitHub's automatic branch publisher; the workflow in this repository is named **Deploy GitHub Pages**. Use the repository workflow after enabling Actions publishing. Publishing is serialized across branches without canceling an active deployment, and the deploy action waits up to 30 minutes for GitHub to finish. This longer timeout cannot repair a stalled GitHub service; if publishing still stalls, check [GitHub Status](https://www.githubstatus.com/) and start a new workflow run after the service recovers. Push workflow changes before starting a new run; re-running an old run uses its original workflow revision.
+
 ## Original rider flow
 
 Open `index.html` directly in a browser. No installation, build, API key, or backend is required. Internet access is needed for the embedded Google Maps; the simulator and locally hosted Sarabun font work without external requests.
