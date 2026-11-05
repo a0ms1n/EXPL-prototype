@@ -7,6 +7,9 @@
   <title>คำนวณค่าโดยสาร</title>
   <link rel="stylesheet" href="styles.css">
   <script src="fare.js" defer></script>
+  <script src="qrcode.js" defer></script>
+  <script src="ride-share.js" defer></script>
+  <script src="ride-panel.js" defer></script>
   <script src="map.js" defer></script>
   <script src="settings.js" defer></script>
   <script src="app.js" defer></script>
@@ -29,7 +32,7 @@
   <div class="app-shell">
     <header class="app-header">
       <span class="brand brand-accent">SC-09</span>
-      <div class="header-tools"><span class="demo-badge"><span></span>ทดลอง</span><button id="open-settings" class="settings-button" type="button" aria-label="เปิดการตั้งค่า Debug mode" aria-haspopup="dialog" aria-controls="debug-settings"><svg><use href="#i-settings"/></svg></button></div>
+      <div class="header-tools"><button id="open-ride-qr" class="share-header-button" type="button" aria-haspopup="dialog" aria-controls="ride-qr-dialog" hidden>QR ผู้โดยสาร</button><span class="demo-badge"><span></span>ทดลอง</span><button id="open-settings" class="settings-button" type="button" aria-label="เปิดการตั้งค่า Debug mode" aria-haspopup="dialog" aria-controls="debug-settings"><svg><use href="#i-settings"/></svg></button></div>
     </header>
 
     <main class="workspace">
@@ -100,12 +103,29 @@
           <div class="receipt"><p class="eyebrow">ค่าโดยสารสุทธิ</p><div class="final-price"><span id="final-price">45</span><span>บาท</span></div><span class="receipt-range" id="receipt-range">ช่วงราคาที่ตกลง 35–55 บาท</span><div class="receipt-divider"></div><div class="receipt-route"><span id="receipt-origin"></span><span id="receipt-destination"></span></div><div class="receipt-details"><div><span>ระยะทางจริง (จำลอง)</span><b id="receipt-distance"></b></div><div><span>เวลาเดินทาง</span><b id="receipt-time"></b></div><div><span>ค่าระยะทาง</span><b id="receipt-distance-fee"></b></div><div><span id="receipt-slow-label">ค่าเคลื่อนตัวช้า / หยุดรอ</span><b id="receipt-time-fee"></b></div><div class="receipt-subtotal"><span>ยอดตามมิเตอร์</span><b id="receipt-meter"></b></div><div id="adjustment-row"><span id="adjustment-label">ปรับตามช่วงราคา</span><b id="receipt-adjustment"></b></div></div><div id="settlement-note" class="settlement-note"></div></div>
           <button type="button" id="new-trip" class="button primary new-trip"><svg><use href="#i-reset"/></svg>เริ่มการเดินทางใหม่</button><p class="setup-footnote">ต้นแบบจำลอง · ไม่มีการเรียกเก็บเงินจริง</p>
         </div>
+        <section id="ride-share-card" class="ride-share-card" aria-labelledby="ride-share-title" hidden>
+          <div class="share-card-heading"><div><p class="eyebrow">สำหรับผู้โดยสาร</p><h2 id="ride-share-title">สแกนเพื่อติดตามทริป</h2></div><span class="mini-badge">ข้อมูลจำลอง</span></div>
+          <div class="share-rider"><span class="share-avatar" aria-hidden="true">สช</span><div><b id="share-rider-name"></b><p id="share-rider-vehicle"></p><p id="share-rider-rating"></p></div></div>
+          <p class="share-explanation">ดูตำแหน่งจำลอง ข้อมูลคนขับ และรีวิว พร้อมให้คะแนนหลังจบทริป</p>
+          <button id="expand-ride-qr" class="share-qr-button" type="button" aria-label="ขยาย QR Code ของทริปนี้" aria-haspopup="dialog" aria-controls="ride-qr-dialog"><span id="ride-qr" role="img" aria-label="QR Code เปิดหน้าผู้โดยสาร"></span><span>แตะเพื่อขยาย QR</span></button>
+          <p id="share-ride-id" class="share-ride-id"></p>
+          <div class="share-actions"><a id="customer-link" class="button primary" target="_blank" rel="noopener">เปิดหน้าผู้โดยสาร ↗</a><button id="copy-ride-link" class="button secondary" type="button">คัดลอกลิงก์</button></div>
+          <label class="share-link-label" for="ride-link">ลิงก์สำหรับทริปนี้</label><input id="ride-link" class="share-link-input" type="text" readonly spellcheck="false">
+          <p id="share-message" class="share-message" role="status" aria-live="polite"></p>
+          <p id="share-host-note" class="share-note"></p>
+        </section>
         </div>
         <div id="trip-actions" class="trip-actions" hidden><button type="button" id="pause-trip" class="button secondary" aria-pressed="false">พักมิเตอร์</button><button type="button" id="finish-trip" class="button primary">ถึงที่หมาย <svg><use href="#i-check"/></svg></button></div>
       </section>
     </main>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="ride-qr-dialog" class="ride-qr-dialog" aria-labelledby="qr-dialog-title">
+    <div class="share-card-heading"><h2 id="qr-dialog-title">สแกนเปิดหน้าผู้โดยสาร</h2><button id="close-ride-qr" class="settings-close" type="button" aria-label="ปิด QR Code">×</button></div>
+    <div id="ride-qr-large" role="img" aria-label="QR Code ของทริปนี้"></div>
+    <p id="qr-snapshot-time" class="share-note"></p><p class="share-note">ต่างอุปกรณ์เปิดข้อมูล ณ เวลาสร้าง QR · การอัปเดตต่อเนื่องทำงานในเบราว์เซอร์เดียวกัน</p>
+    <a id="dialog-customer-link" class="button primary" target="_blank" rel="noopener">เปิดหน้าผู้โดยสาร ↗</a>
+  </dialog>
   <dialog id="debug-settings" class="settings-dialog" aria-labelledby="settings-title" aria-describedby="settings-description">
     <div class="settings-dialog-header"><span class="settings-dialog-icon"><svg><use href="#i-settings"/></svg></span><div><p class="eyebrow">DEBUG MODE</p><h2 id="settings-title">ตั้งค่าการทดลอง</h2></div><button id="close-settings" class="settings-close" type="button" aria-label="ปิดการตั้งค่า"><svg><use href="#i-close"/></svg></button></div>
     <p id="settings-description" class="settings-description">ปรับมุมมองและการจำลองได้ โดยไม่ต้องเริ่มทริปใหม่</p>

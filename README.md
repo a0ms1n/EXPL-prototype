@@ -1,5 +1,28 @@
 # วินชัวร์ — mobile fare prototype
 
+## PrototypeV2: rider and customer views
+
+`PrototypeV2` adds a passenger page while keeping the original rider calculator and meter.
+
+Use the **Prototype 1 / Prototype 2** dropdown at the top of `index.html` to compare versions. Prototype 1 shows the original rider calculator and meter; Prototype 2 adds QR sharing, rider details, and the customer page. Switching preserves the current trip and mobile frame setting. The selection is saved locally, and `index.html?prototype=1` or `index.html?prototype=2` opens a specific version.
+
+1. Open `index.html` and press **คำนวณราคา**. Every successful calculation creates a new ride ID, a QR code, and a customer link. Editing either place invalidates the estimate and cancels its unused ride link; calculating again creates a fresh ride.
+2. Scan the QR or press **เปิดหน้าผู้โดยสาร**. **QR ผู้โดยสาร** in the header opens an enlarged QR at any trip stage. The customer page shows the agreed fare range, simulated current position, progress, mock rider profile, vehicle/plate, rating, and example reviews.
+3. Leave both rider and passenger pages open in the same browser profile to watch the rider's meter, movement, pause/resume, and arrival sync through browser storage. Different rides stay isolated. Ending early preserves the actual simulated endpoint.
+4. After the rider completes the trip, passengers can submit one 1–5 star review with an optional comment (up to 500 characters). Reviews persist in that browser and appear with the mock reviews; they are not published to a server.
+
+The link contains a UTF-8 ride snapshot in its URL fragment, so it also opens on a different phone without access to the rider's browser storage. **GitHub Pages cannot relay live location updates between devices without a backend**: another device shows the snapshot captured when that QR/link was generated. The QR refreshes during the trip and immediately when enlarged or copied. A separate, clearly labeled **ลองการเดินทางบนเครื่องนี้** button demonstrates movement on the customer device without changing the rider's trip or enabling reviews for that isolated demo. This prototype does not use real GPS.
+
+QR encoding runs locally using vendored `qrcode.js`; it does not send trip data to a QR service. Browser storage restrictions are handled with an in-memory fallback and an on-screen explanation. Snapshots still open; cross-tab synchronization and persistence may be unavailable. Maps and fonts need internet access, but ride data and the simulated route overlay work independently.
+
+For testing with two devices, serve the site at an address both can reach. A QR pointing at `localhost`, `127.0.0.1`, or a `file:` URL cannot open your computer's files on another phone. Once deployed, customer links are resolved relative to the current page, e.g. `https://YOUR-USERNAME.github.io/REPOSITORY/customer.html#ride=…`. No domain, repository name, or root-relative path is hard-coded.
+
+New files: `customer.html`, `customer.css`, `customer.js` (passenger view); `ride-share.js` (snapshot, storage, reviews and demo protocol); `ride-panel.js` (rider QR UI); `qrcode.js` and `THIRD_PARTY_NOTICES.md` (MIT QR encoder); `tests/ride-share.test.cjs` (protocol tests).
+
+Run all protocol and existing fare tests with `node --test tests/*.test.cjs`. To deploy this branch using the existing workflow, push `PrototypeV2`, enable GitHub Pages with **GitHub Actions**, then manually run **Deploy GitHub Pages** with `PrototypeV2` selected under **Run workflow**. Automatic push deployment continues to use `main`. No push or deployment is performed by these local changes.
+
+## Original rider flow
+
 Open `index.html` directly in a browser. No installation, build, API key, or backend is required. Internet access is needed for the embedded Google Maps and optional Google font; the simulator works without them.
 
 1. Enter an origin and destination under **เลือกปลายทาง**.

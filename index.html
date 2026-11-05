@@ -9,7 +9,13 @@
   <script src="preview.js" defer></script>
 </head>
 <body>
-  <button id="toggle-frame" class="frame-toggle" type="button" aria-pressed="false">Mobile frame: Off</button>
+  <nav class="preview-toolbar" aria-label="Prototype options">
+    <select id="prototype-version" class="version-switch" aria-label="Prototype version">
+      <option value="1">Prototype 1</option>
+      <option value="2" selected>Prototype 2</option>
+    </select>
+    <button id="toggle-frame" class="frame-toggle" type="button" aria-pressed="false">Mobile frame: Off</button>
+  </nav>
   <main id="preview-stage" class="preview-stage" aria-label="ต้นแบบค่าโดยสาร">
     <div class="phone-frame">
       <span class="frame-button frame-silent" aria-hidden="true"></span><span class="frame-button frame-volume-up" aria-hidden="true"></span><span class="frame-button frame-volume-down" aria-hidden="true"></span><span class="frame-button frame-power" aria-hidden="true"></span><span class="frame-button frame-camera" aria-hidden="true"></span>

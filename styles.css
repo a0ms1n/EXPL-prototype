@@ -292,3 +292,32 @@ body { height: 100dvh; overflow: hidden; display: flex; flex-direction: column; 
   .panel-scroll { padding: 14px; }
   .app-header, .phone-mode .app-header { height: 48px; }
 }
+
+/* Passenger sharing stays available through estimate, meter, and receipt. */
+.share-header-button { min-height: 40px; padding: 6px 10px; border: 1px solid #cbd9bf; border-radius: 10px; background: #f0f5e9; color: var(--green); font: inherit; font-size: 11px; font-weight: 650; }
+.ride-share-card { margin-top: 24px; border: 1px solid #dce5d4; border-radius: 18px; padding: 18px; background: #fafcf7; }
+.share-card-heading { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.share-card-heading h2 { font-size: 19px; font-weight: 650; line-height: 1.6; margin: 0; color: var(--green); }
+.share-card-heading .eyebrow { font-size: 10px; }
+.share-rider { display: flex; gap: 12px; align-items: center; margin-top: 16px; }
+.share-avatar { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; background: #e2ecd8; color: var(--green); font-size: 17px; font-weight: 700; }
+.share-rider b { font-size: 12px; }.share-rider p { font-size: 11px; color: #5b6d5b; line-height: 1.8; margin: 2px 0; }
+.share-explanation, .share-note { font-size: 11px; color: #62715c; line-height: 1.9; margin: 12px 0; overflow-wrap: anywhere; }
+.share-qr-button { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 8px; padding: 12px; border: 1px solid #e0e7d9; border-radius: 14px; background: white; color: #62715c; font: inherit; font-size: 11px; cursor: pointer; }
+#ride-qr { display: block; width: min(100%, 236px); }
+#ride-qr svg, #ride-qr-large svg { display: block; width: 100%; height: auto; }
+.share-ride-id { text-align: center; color: #6b7b64; font-size: 10px; margin: 9px 0 14px; }
+.share-actions { display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; }
+.share-actions .button { text-decoration: none; min-height: 46px; padding: 8px; font-size: 12px; }
+.share-link-label { display: block; margin-top: 14px; font-size: 11px; color: #62715c; }
+.share-link-input { width: 100%; min-width: 0; min-height: 44px; margin-top: 5px; padding: 10px; border: 1px solid #dce5d4; background: white; border-radius: 8px; font-size: 12px; color: #4e6548; }
+.share-message { font-size: 11px; line-height: 1.8; color: var(--green); margin: 8px 0; }
+.ride-qr-dialog { box-sizing: border-box; width: min(520px, calc(100% - 24px)); max-height: calc(100dvh - 28px); margin: auto; padding: 20px; border: 1px solid #dce5d4; border-radius: 20px; background: white; color: var(--green); overflow-y: auto; }
+.ride-qr-dialog::backdrop { background: #172b2370; backdrop-filter: blur(4px); }
+#ride-qr-large { width: 100%; margin-top: 12px; background: white; }
+.ride-qr-dialog .button { text-decoration: none; }
+@media (max-width: 420px) {
+  .header-tools { gap: 5px; }.share-header-button { font-size: 10px; padding: 5px 8px; }
+  .ride-share-card { padding: 14px; }.share-card-heading h2 { font-size: 17px; }
+  .share-actions { grid-template-columns: 1fr; }
+}

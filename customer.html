@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f6f2">
+  <title>การเดินทางของคุณ · SC-09</title>
+  <link rel="stylesheet" href="./customer.css">
+  <script src="./fare.js" defer></script>
+  <script src="./ride-share.js" defer></script>
+  <script src="./customer.js" defer></script>
+</head>
+<body>
+  <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="c-bike" viewBox="0 0 24 24"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="m5 17 4-7h5l5 7m-10-7 4 7H5m8 0 3-11h-4m-6 4H4"/></symbol>
+    <symbol id="c-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="c-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="c-arrow" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6"/></symbol>
+  </defs></svg>
+  <div class="page-shell">
+    <header class="page-header"><a class="brand" href="./index.html" aria-label="SC-09 หน้าหลัก">SC-09<span>เดินทางอย่างมั่นใจ</span></a><span class="customer-tag">สำหรับผู้โดยสาร</span></header>
+    <main>
+      <section id="invalid-link" class="invalid-card" hidden aria-labelledby="invalid-title">
+        <div class="empty-symbol" aria-hidden="true">↗</div><p class="eyebrow">ลิงก์การเดินทาง</p><h1 id="invalid-title">ยังเปิดทริปนี้ไม่ได้</h1><p>ลิงก์อาจไม่ครบหรือรูปแบบไม่ถูกต้อง กรุณาขอลิงก์หรือสแกน QR ของทริปจากผู้ขับขี่อีกครั้ง</p><a class="button primary" href="./index.html">กลับหน้าหลัก <span aria-hidden="true">→</span></a>
+      </section>
+      <div id="trip-content" hidden>
+        <div class="page-heading"><div><p class="eyebrow">รายละเอียดการเดินทาง</p><h1>ทริปของคุณ</h1></div><span id="ride-code" class="ride-code"></span></div>
+        <aside class="simulation-notice"><svg aria-hidden="true"><use href="#c-shield"/></svg><p><b>ต้นแบบจำลอง · ไม่มีการเรียกเก็บเงินจริง</b><span>แผนที่จาก Google แต่เส้นทาง ตำแหน่งรถ ค่าโดยสาร และข้อมูลผู้ขับขี่เป็นข้อมูลจำลอง</span></p></aside>
+        <div class="customer-layout">
+          <div class="journey-column">
+            <section class="map-card" aria-label="แผนที่เส้นทางจำลอง">
+              <div id="customer-map" class="map-surface">
+                <div class="offline-map" aria-hidden="true"><span class="park park-one"></span><span class="park park-two"></span><span class="road road-one"></span><span class="road road-two"></span><span class="road road-three"></span></div>
+                <iframe id="customer-google-map" title="Google Maps พื้นหลังเส้นทาง" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1"></iframe>
+                <svg id="customer-route-layer" class="route-layer" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="เส้นทางและตำแหน่งรถจำลอง">
+                  <path id="customer-route-halo" class="route-halo"/><path id="customer-route-path" class="route-path"/><path id="customer-route-travelled" class="route-travelled"/>
+                  <g id="customer-start-marker" class="start-marker"><circle r="8"/><circle r="3"/></g>
+                  <g id="customer-end-marker" class="end-marker"><circle r="11"/><path d="m-4 0 3 3 5-6"/></g>
+                  <g id="customer-rider-marker" class="rider-marker"><circle class="marker-halo" r="27"/><circle class="marker-disc" r="18"/><svg x="-12" y="-12" width="24" height="24" viewBox="0 0 24 24"><use href="#c-bike"/></svg></g>
+                </svg>
+                <div class="map-toolbar"><span class="map-label"><i></i>ตำแหน่งจำลอง</span><a id="customer-maps-link" class="map-open" target="_blank" rel="noopener noreferrer">เปิด Google Maps ↗</a></div>
+                <div class="map-position"><svg aria-hidden="true"><use href="#c-bike"/></svg><span id="position-label"></span></div>
+              </div>
+              <div class="route-summary"><div class="route-stop"><i class="origin-dot" aria-hidden="true"></i><div><p>จุดรับ</p><b id="customer-origin"></b></div></div><div class="route-stop"><i class="destination-dot" aria-hidden="true"></i><div><p>จุดหมาย</p><b id="customer-destination"></b></div></div><p id="customer-route-name" class="route-name"></p></div>
+            </section>
+            <section class="connection-card" aria-labelledby="connection-title"><div class="connection-heading"><span id="connection-dot" class="connection-dot"></span><h2 id="connection-title">ข้อมูลจากลิงก์</h2></div><p id="connection-description"></p><p id="updated-label" class="updated-label"></p><div class="static-note">เว็บไซต์ต้นแบบนี้แสดงข้อมูล ณ เวลาที่แชร์เมื่อเปิดลิงก์บนอีกอุปกรณ์ จึงไม่รับอัปเดตสดจากผู้ขับขี่ การอัปเดตอัตโนมัติใช้ได้เฉพาะเบราว์เซอร์เดียวกัน</div><button id="start-customer-demo" class="button secondary" type="button">ลองการเดินทางบนเครื่องนี้ <span aria-hidden="true">→</span></button><button id="stop-customer-demo" class="text-button" type="button" hidden>กลับไปดูข้อมูลทริปที่แชร์</button><p id="customer-demo-hint" class="demo-hint">การทดลองแยกจากมิเตอร์ผู้ขับขี่ ไม่เปลี่ยนข้อมูลทริปที่แชร์</p></section>
+          </div>
+          <div class="details-column">
+            <section class="trip-card" aria-labelledby="trip-status-title"><div class="card-topline"><p class="eyebrow">สถานะการเดินทาง</p><span id="source-badge" class="source-badge">ข้อมูลจากลิงก์</span></div><div class="trip-status-heading"><h2 id="trip-status-title"></h2><span id="trip-status-icon" class="status-icon" aria-hidden="true"><svg><use href="#c-bike"/></svg></span></div><p id="trip-status-description" class="status-description" role="status" aria-live="polite"></p><div class="fare-panel"><p id="fare-label">ค่าโดยสารตามมิเตอร์</p><div class="fare-amount"><b id="customer-fare">0</b><span>บาท</span></div><div class="agreed-range"><svg aria-hidden="true"><use href="#c-shield"/></svg>ช่วงราคาที่ตกลง <b id="customer-range"></b></div><p id="fare-note"></p></div><div class="trip-metrics"><div><b id="customer-distance"></b><span>ระยะทางที่เดินทางแล้ว</span></div><div><b id="customer-time"></b><span>เวลาเดินทาง (นาที:วินาที)</span></div></div><div class="progress-heading"><span id="progress-label">ความคืบหน้า</span><b id="customer-progress-label">0%</b></div><progress id="customer-progress" max="100" value="0" aria-label="ความคืบหน้าตามระยะทาง"></progress><p id="progress-note" class="progress-note"></p></section>
+            <section class="rider-card" aria-labelledby="rider-heading"><div class="card-topline"><h2 id="rider-heading">ผู้ขับขี่ของคุณ</h2><span class="mock-badge">โปรไฟล์จำลอง</span></div><div class="rider-profile"><div id="rider-avatar" class="rider-avatar" aria-hidden="true"></div><div><h3 id="rider-name"></h3><p id="rider-experience"></p><p class="rider-rating"><span aria-hidden="true">★</span> <b id="rider-rating"></b> <span id="rider-review-count"></span></p></div></div><dl class="vehicle-details"><div><dt>รถจักรยานยนต์</dt><dd id="rider-vehicle"></dd></div><div><dt>ทะเบียน</dt><dd id="rider-plate" class="plate"></dd></div><div><dt>วิน / หมายเลขเสื้อ</dt><dd id="rider-stand"></dd></div></dl></section>
+            <section class="review-card" aria-labelledby="review-title"><div class="card-topline"><h2 id="review-title">การเดินทางเป็นอย่างไรบ้าง?</h2><span class="review-heart" aria-hidden="true">♡</span></div><p id="review-availability" class="review-availability"></p><form id="customer-review-form"><fieldset id="review-fields" disabled><legend class="visually-hidden">ให้คะแนนผู้ขับขี่</legend><fieldset class="rating-field"><legend>คะแนนการเดินทาง</legend><div class="star-options"><label><input type="radio" name="rating" value="1" required><span aria-hidden="true">★</span><span class="visually-hidden">1 ดาว</span></label><label><input type="radio" name="rating" value="2"><span aria-hidden="true">★</span><span class="visually-hidden">2 ดาว</span></label><label><input type="radio" name="rating" value="3"><span aria-hidden="true">★</span><span class="visually-hidden">3 ดาว</span></label><label><input type="radio" name="rating" value="4"><span aria-hidden="true">★</span><span class="visually-hidden">4 ดาว</span></label><label><input type="radio" name="rating" value="5"><span aria-hidden="true">★</span><span class="visually-hidden">5 ดาว</span></label></div></fieldset><label class="comment-label" for="review-comment">เล่าประสบการณ์ของคุณ <span>(ไม่บังคับ)</span></label><textarea id="review-comment" name="comment" rows="3" maxlength="500" placeholder="เช่น ขับขี่สุภาพ เดินทางสะดวก"></textarea><div class="review-form-footer"><small>บันทึกในเบราว์เซอร์นี้ · 1 รีวิวต่อทริป</small><button class="button primary" type="submit">ส่งรีวิว <span aria-hidden="true">→</span></button></div></fieldset></form><p id="review-result" class="review-result" role="status" aria-live="polite"></p><div id="saved-review" class="saved-review" hidden><b>รีวิวของคุณ</b><p id="saved-review-rating" class="saved-review-rating"></p><p id="saved-review-comment"></p></div></section>
+            <section class="past-reviews" aria-labelledby="past-reviews-title"><div class="card-topline"><h2 id="past-reviews-title">เสียงจากผู้โดยสาร</h2><span class="mock-badge">รีวิวตัวอย่าง / ในเครื่อง</span></div><div id="rider-reviews"></div></section>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="page-footer"><a href="./index.html"><svg aria-hidden="true"><use href="#c-arrow"/></svg>กลับหน้าหลัก</a><span>SC-09 · ต้นแบบเพื่อการทดลอง</span></footer>
+  </div>
+</body>
+</html>

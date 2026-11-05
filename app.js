@@ -121,12 +121,14 @@
     $('start-trip').disabled = false;
     $('calculate-label').textContent = 'คำนวณราคาใหม่';
     updateMap();
+    RidePanel.create(trip);
     if (origin.custom || destination.custom) toast('ชื่อสถานที่ใหม่นี้ใช้พิกัดสมมติในกรุงเทพฯ สำหรับการทดลอง');
   }
 
   function invalidateEstimate() {
     if (pageState !== 'setup') return;
     trip = null;
+    RidePanel.clear();
     $('estimate-card').hidden = true;
     $('start-trip').disabled = true;
     $('calculate-label').textContent = 'คำนวณราคา';
@@ -175,7 +177,7 @@
     $('meter-status').replaceChildren(statusDot(), document.createTextNode('กำลังวิ่ง'));
     updateTrafficDescription();
     setState('meter');
-    renderMeter();
+    renderMeter(true);
     lastTick = performance.now();
     clearInterval(timer);
     timer = setInterval(tick, 200);
@@ -184,7 +186,7 @@
 
   function statusDot() { const dot = document.createElement('span'); dot.className = 'live-dot'; return dot; }
 
-  function renderMeter() {
+  function renderMeter(forceShare = false) {
     const total = Fare.meterTotal(meter);
     $('meter-price').textContent = total;
     $('meter-distance').textContent = meter.km.toFixed(2);
@@ -200,6 +202,8 @@
     note.textContent = total > trip.range.max ? `มิเตอร์เกินช่วงราคาแล้ว · จ่ายสูงสุด ${trip.range.max} บาท` : total < trip.range.min ? `ยอดขั้นต่ำเมื่อจบทริป ${trip.range.min} บาท ตามช่วงที่ตกลง` : 'ราคาสุดท้ายปรับให้อยู่ในช่วงที่ตกลง';
     updateProgress(meter.km / trip.route.km * 100);
     $('map-route-status').textContent = `${running ? 'กำลังเดินทาง' : 'พักมิเตอร์'} · เหลือ ${Math.max(0, trip.route.km - meter.km).toFixed(2)} กม.`;
+    RidePanel.update({ status: running ? 'riding' : 'paused', km: meter.km, seconds: meter.seconds,
+      rawFare: total, total, meter: { ...meter } }, forceShare);
   }
 
   function pauseTrip() {
@@ -212,7 +216,7 @@
     $('pause-trip').setAttribute('aria-pressed', String(!running));
     $('meter-status').classList.toggle('paused', !running);
     $('meter-status').replaceChildren(statusDot(), document.createTextNode(running ? 'กำลังวิ่ง' : 'พักมิเตอร์'));
-    renderMeter();
+    renderMeter(true);
   }
 
   function finishTrip() {
@@ -238,6 +242,8 @@
     $('settlement-note').textContent = result.adjustment > 0 ? `มิเตอร์ต่ำกว่า ${trip.range.min} บาท จึงคิดราคาขั้นต่ำที่ตกลงไว้ ${trip.range.min} บาท` : result.adjustment < 0 ? `มิเตอร์เกิน ${trip.range.max} บาท จึงจำกัดราคาสูงสุดที่ ${trip.range.max} บาท` : 'ยอดมิเตอร์อยู่ในช่วงราคาที่ตกลง จึงจ่ายตามมิเตอร์ได้เลย';
     $('map-route-status').textContent = `จบการเดินทาง · ${meter.km.toFixed(2)} กม.`;
     setState('summary');
+    RidePanel.update({ status: 'completed', km: meter.km, seconds: meter.seconds,
+      rawFare: result.raw, total: result.total, meter: { ...meter } }, true);
     $('new-trip').focus({ preventScroll: true });
   }
 
@@ -266,9 +272,15 @@
     $('destination').focus({ preventScroll: true });
   });
   // Navigation away cannot leave an old simulation timer running.
-  window.addEventListener('pagehide', () => { clearInterval(timer); timer = null; });
+  window.addEventListener('pagehide', () => {
+    clearInterval(timer); timer = null;
+    if (active) RidePanel.update({ status: 'paused' }, true);
+  });
   window.addEventListener('pageshow', event => {
-    if (event.persisted && active) { lastTick = performance.now(); timer = setInterval(tick, 200); }
+    if (event.persisted && active) {
+      lastTick = performance.now(); timer = setInterval(tick, 200);
+      renderMeter(true);
+    }
   });
   updateTrafficDescription();
   setState('setup');
