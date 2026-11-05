@@ -31,7 +31,7 @@
   // charges once, including when one simulation tick crosses several windows.
   function advanceMeter(meter, seconds, speedKmh, destinationKm = Infinity) {
     if (!Number.isFinite(seconds) || seconds < 0 || !Number.isFinite(speedKmh) || speedKmh < 0) {
-      throw new RangeError('Time and speed must be nonnegative numbers.');
+   new RangeError('Time and speed must be nonnegative numbers.');
     }
     let remaining = seconds;
     let charged = 0;
