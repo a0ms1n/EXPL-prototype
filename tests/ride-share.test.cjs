@@ -47,14 +47,21 @@ function storageHub() {
   };
 }
 
-function device({ hub = storageHub(), blockedStorage = false, url = 'https://example.github.io/ride-prototype/app.html' } = {}) {
+function device({ hub = storageHub(), blockedStorage = false, random = Math.random, secureRandom = true, url = 'https://example.github.io/ride-prototype/app.html' } = {}) {
   const listeners = new Map();
   const dispatch = (type, event) => {
     for (const callback of [...(listeners.get(type) || [])]) callback(event);
   };
   const storage = hub.attach(dispatch);
   const sandbox = {
-    URL, URLSearchParams, TextEncoder, TextDecoder, crypto: webcrypto,
+    URL, URLSearchParams, TextEncoder, TextDecoder,
+    crypto: {
+      randomUUID: () => webcrypto.randomUUID(),
+      getRandomValues(values) {
+        for (let i = 0; i < values.length; i++) values[i] = Math.floor(random() * 0x100000000);
+        return values;
+      }
+    },
     console, setTimeout, clearTimeout, setInterval, clearInterval,
     btoa, atob,
     location: new URL(url),
@@ -68,6 +75,9 @@ function device({ hub = storageHub(), blockedStorage = false, url = 'https://exa
       constructor(type, options = {}) { this.type = type; this.detail = options.detail; }
     }
   };
+  sandbox.Math = Object.create(Math);
+  sandbox.Math.random = random;
+  if (!secureRandom) delete sandbox.crypto.getRandomValues;
   sandbox.window = sandbox;
   sandbox.self = sandbox;
   Object.defineProperty(sandbox, 'localStorage', {
@@ -85,9 +95,63 @@ function device({ hub = storageHub(), blockedStorage = false, url = 'https://exa
 test('CommonJS and browser builds expose the ride protocol', () => {
   const commonJS = require('../ride-share.js');
   const { api } = device();
-  for (const name of ['create', 'customerURL', 'encode', 'decode', 'read', 'save', 'subscribe', 'position', 'getRider', 'getReviews', 'getReview', 'submitReview', 'simulate', 'newDemo']) {
+  for (const name of ['create', 'customerURL', 'encode', 'decode', 'read', 'save', 'subscribe', 'position', 'getRider', 'getRiders', 'getReviews', 'getReview', 'submitReview', 'simulate', 'newDemo']) {
     assert.equal(typeof api[name], 'function', `browser ${name}`);
     assert.equal(typeof commonJS[name], 'function', `CommonJS ${name}`);
+  }
+});
+
+test('new rides randomly choose among five profiles and sharing retains the selected rider', () => {
+  for (const secureRandom of [true, false]) {
+    let selection = 0;
+    const { api } = device({ random: () => selection, secureRandom });
+    const riders = api.getRiders();
+    assert.equal(riders.length, 5);
+    assert.equal(new Set(riders.map(rider => rider.id)).size, 5);
+    assert.equal(new Set(riders.map(rider => rider.name)).size, 5);
+    const receiver = device({ random: () => 0.999999 }).api;
+    const selected = [];
+    for (let i = 0; i < riders.length; i++) {
+      selection = (i + 0.5) / riders.length;
+      const ride = api.create(trip());
+      selected.push(ride.riderId);
+      assert.equal(ride.riderId, riders[i].id, `selection bucket ${i}, secure random ${secureRandom}`);
+      const imported = receiver.decode(new URL(api.customerURL(ride)).hash);
+      assert.equal(imported.riderId, ride.riderId);
+      assert.equal(receiver.getRider(imported.riderId).name, riders[i].name);
+      assert.equal(receiver.getRider(imported.riderId).plate, riders[i].plate);
+      assert.equal(api.newDemo(ride).riderId, ride.riderId);
+    }
+    assert.equal(new Set(selected).size, 5);
+    const originalName = riders[0].name;
+    riders[0].name = 'mutated';
+    assert.equal(api.getRider(riders[0].id).name, originalName);
+  }
+});
+
+test('reviews and aggregate counts remain isolated for all five selected riders', () => {
+  let selection = 0;
+  const hub = storageHub();
+  const { api } = device({ hub, random: () => selection });
+  const riders = api.getRiders();
+  const baseline = new Map(riders.map(rider => [rider.id, api.getRider(rider.id).reviewCount]));
+  const rides = [];
+  for (let i = 0; i < riders.length; i++) {
+    selection = (i + 0.5) / riders.length;
+    const done = api.simulate(api.newDemo(api.create(trip())), 10000);
+    rides.push(done);
+    api.save(done);
+    api.submitReview(done, { rating: i + 1, comment: `รีวิวสำหรับ ${riders[i].name}` });
+  }
+  const reloaded = device({ hub }).api;
+  for (const ride of rides) {
+    assert.equal(reloaded.getRider(ride.riderId).reviewCount, baseline.get(ride.riderId) + 1);
+    const ownReviews = reloaded.getReviews(ride.riderId).filter(review => review.rideId);
+    assert.equal(ownReviews.length, 1);
+    assert.equal(ownReviews[0].rideId, ride.id);
+    assert.equal(ownReviews[0].riderId, ride.riderId);
+    assert.equal(reloaded.getReview(ride.id).riderId, ride.riderId);
+    assert.throws(() => reloaded.submitReview(ride, { rating: 5, comment: 'duplicate' }), rangeError);
   }
 });
 

@@ -14,10 +14,13 @@
   const requestedVersion = new URLSearchParams(location.search).get('prototype');
   if (['1', '2'].includes(requestedVersion)) prototypeVersion = requestedVersion;
   const dialog = $('ride-qr-dialog');
-  const rider = RideShare.getRider();
-  $('share-rider-name').textContent = `${rider.name} · ${rider.vest}`;
-  $('share-rider-vehicle').textContent = rider.plate;
-  $('share-rider-rating').textContent = `★ ${rider.rating.toFixed(1)} · ${rider.reviewCount} รีวิวจำลอง`;
+  function renderRider() {
+    const rider = RideShare.getRider(record ? record.riderId : undefined);
+    $('share-rider-name').textContent = `${rider.name} · ${rider.vest}`;
+    $('share-rider-vehicle').textContent = rider.plate;
+    $('share-rider-rating').textContent = `★ ${rider.rating.toFixed(1)} · ${rider.reviewCount} รีวิวจำลอง`;
+  }
+  renderRider();
   const local = location.protocol === 'file:' || ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
   $('share-host-note').textContent = local ?
     'ทดสอบในเครื่อง: เปิดหน้าผู้โดยสารในแท็บใหม่ได้ หากสแกนจากโทรศัพท์ ให้ใช้ URL ที่โทรศัพท์เข้าถึงได้ เช่น GitHub Pages' :
@@ -43,6 +46,7 @@
 
   function publish(force) {
     if (!record || (!force && Date.now() - lastSaved < 1000)) return;
+    renderRider();
     const persistent = RideShare.save(record);
     lastSaved = Date.now();
     url = RideShare.customerURL(record);

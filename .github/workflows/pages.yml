@@ -26,6 +26,7 @@ jobs:
           mkdir _site
           cp *.html *.css *.js .nojekyll _site/
           cp THIRD_PARTY_NOTICES.md _site/
+          cp -R fonts _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

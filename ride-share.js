@@ -4,12 +4,39 @@
   const Fare = root.Fare || (typeof require === 'function' ? require('./fare.js') : null);
   const PREFIX = 'sc09-v2-';
   const memory = new Map();
-  const rider = Object.freeze({
-    id: 'rider-somchai', name: 'สมชาย ใจดี', nickname: 'พี่ชาย', initials: 'สช',
-    stand: 'วินสามย่าน · จุฬาฯ', experience: 'ขับขี่ 8 ปี',
-    vehicle: 'Honda Wave 125i · สีดำแดง', plate: '1กข 2345 กรุงเทพมหานคร',
-    vest: 'เสื้อวินหมายเลข 09', rating: 4.9, reviewCount: 128, rides: 1240
-  });
+  const riders = Object.freeze([
+    Object.freeze({
+      id: 'rider-somchai', name: 'สมชาย ใจดี', nickname: 'พี่ชาย', initials: 'สช',
+      stand: 'วินสามย่าน · จุฬาฯ', experience: 'ขับขี่ 8 ปี',
+      vehicle: 'Honda Wave 125i · สีดำแดง', plate: '1กข 2345 กรุงเทพมหานคร',
+      vest: 'เสื้อวินหมายเลข 09', rating: 4.9, reviewCount: 128, rides: 1240
+    }),
+    Object.freeze({
+      id: 'rider-wichai', name: 'วิชัย สุขสวัสดิ์', nickname: 'พี่ชัย', initials: 'วช',
+      stand: 'วินสยาม · ถนนพระราม 1', experience: 'ขับขี่ 6 ปี',
+      vehicle: 'Honda Click 125i · สีขาวดำ', plate: '2ขค 4186 กรุงเทพมหานคร',
+      vest: 'เสื้อวินหมายเลข 12', rating: 4.8, reviewCount: 96, rides: 980
+    }),
+    Object.freeze({
+      id: 'rider-anan', name: 'อนันต์ รุ่งเรือง', nickname: 'พี่นัน', initials: 'อน',
+      stand: 'วินสวนลุม · ถนนพระราม 4', experience: 'ขับขี่ 10 ปี',
+      vehicle: 'Yamaha Finn · สีน้ำเงิน', plate: '3งจ 5721 กรุงเทพมหานคร',
+      vest: 'เสื้อวินหมายเลข 24', rating: 4.9, reviewCount: 184, rides: 1860
+    }),
+    Object.freeze({
+      id: 'rider-suda', name: 'สุดา พูนทรัพย์', nickname: 'พี่ดา', initials: 'สด',
+      stand: 'วินหัวลำโพง · ถนนรองเมือง', experience: 'ขับขี่ 5 ปี',
+      vehicle: 'Honda Scoopy · สีแดงขาว', plate: '4ฉช 6932 กรุงเทพมหานคร',
+      vest: 'เสื้อวินหมายเลข 17', rating: 4.8, reviewCount: 87, rides: 810
+    }),
+    Object.freeze({
+      id: 'rider-kittipong', name: 'กิตติพงษ์ มั่นคง', nickname: 'พี่ก้อง', initials: 'กพ',
+      stand: 'วินอโศก · ถนนสุขุมวิท', experience: 'ขับขี่ 7 ปี',
+      vehicle: 'Yamaha Grand Filano · สีเทา', plate: '5ซฌ 8074 กรุงเทพมหานคร',
+      vest: 'เสื้อวินหมายเลข 31', rating: 4.7, reviewCount: 112, rides: 1150
+    })
+  ]);
+  const ridersById = new Map(riders.map(rider => [rider.id, rider]));
   const mockReviews = [
     { name: 'คุณพลอย', rating: 5, comment: 'ขับสุภาพ มีหมวกกันน็อกให้ ราคาตรงตามที่ตกลงค่ะ', date: '2026-10-28' },
     { name: 'คุณต้น', rating: 5, comment: 'รู้เส้นทางดี ไปถึงตรงเวลา พูดจาดีครับ', date: '2026-10-24' },
@@ -22,7 +49,7 @@
 
   function valid(record) {
     return Boolean(record && record.v === 1 && typeof record.id === 'string' && /^[a-zA-Z0-9_-]{8,80}$/.test(record.id) &&
-      record.riderId === rider.id && number(record.createdAt, 1, 1e15) &&
+      ridersById.has(record.riderId) && number(record.createdAt, 1, 1e15) &&
       number(record.updatedAt, record.createdAt, 1e15) && validPoint(record.origin) && validPoint(record.destination) &&
       record.route && text(record.route.name, 100) && number(record.route.km, 0.01, 1000) && number(record.route.minutes, 0.01, 10000) &&
       record.range && number(record.range.min, 25, 1e6) && number(record.range.max, record.range.min, 1e6) &&
@@ -31,11 +58,21 @@
       number(record.rawFare, 25, 1e8) && number(record.total, 25, 1e8));
   }
 
+  function randomRider() {
+    if (root.crypto && typeof root.crypto.getRandomValues === 'function') {
+      try {
+        const value = root.crypto.getRandomValues(new Uint32Array(1))[0];
+        return riders[Math.floor(value / 0x100000000 * riders.length)];
+      } catch (_) { /* Fall back if this environment blocks Web Crypto. */ }
+    }
+    return riders[Math.floor(Math.random() * riders.length)];
+  }
+
   function create(trip) {
     const now = Date.now();
     const id = root.crypto && typeof root.crypto.randomUUID === 'function' ? root.crypto.randomUUID() :
       `${now.toString(36)}-${Math.random().toString(36).slice(2, 12)}-${Math.random().toString(36).slice(2, 8)}`;
-    const record = { v: 1, id, createdAt: now, updatedAt: now, riderId: rider.id,
+    const record = { v: 1, id, createdAt: now, updatedAt: now, riderId: randomRider().id,
       origin: clone(trip.origin), destination: clone(trip.destination),
       route: { name: trip.route.name, km: trip.route.km, minutes: trip.route.minutes },
       range: { min: trip.range.min, max: trip.range.max },
@@ -139,7 +176,7 @@
     return { lat: Math.atan(Math.sinh(Math.PI * (1 - 2 * y))) * 180 / Math.PI, lng: x * 360 - 180 };
   }
 
-  const validReview = review => review && review.riderId === rider.id && text(review.rideId, 80) &&
+  const validReview = review => review && ridersById.has(review.riderId) && text(review.rideId, 80) &&
     Number.isInteger(review.rating) && review.rating >= 1 && review.rating <= 5 &&
     typeof review.comment === 'string' && review.comment.length <= 500 && text(review.date, 40);
 
@@ -149,10 +186,11 @@
   }
 
   function getReviews(riderId) {
-    if (riderId !== rider.id) return [];
+    if (!ridersById.has(riderId)) return [];
     const ids = stored('review-index');
-    const own = (Array.isArray(ids) ? ids : []).slice(-100).map(getReview).filter(Boolean).reverse();
-    return [...own, ...clone(mockReviews)];
+    const own = (Array.isArray(ids) ? ids : []).slice(-100).map(getReview)
+      .filter(review => review && review.riderId === riderId).reverse();
+    return [...own, ...clone(mockReviews).map(review => ({ ...review, riderId }))];
   }
 
   function submitReview(record, input) {
@@ -169,12 +207,15 @@
   }
 
   function getRider(id) {
-    if (id && id !== rider.id) return null;
+    const rider = ridersById.get(id || riders[0].id);
+    if (!rider) return null;
     const reviews = getReviews(rider.id).filter(review => review.rideId);
     const count = rider.reviewCount + reviews.length;
     return { ...rider, rating: Math.round((rider.rating * rider.reviewCount + reviews.reduce((sum, review) => sum + review.rating, 0)) / count * 10) / 10,
       reviewCount: count };
   }
+
+  function getRiders() { return riders.map(rider => getRider(rider.id)); }
 
   function newDemo(record) {
     if (!valid(record)) throw new RangeError('Invalid ride.');
@@ -200,7 +241,7 @@
   }
 
   const api = { create, encode, decode, customerURL, read, save, subscribe, routePoints, position,
-    getRider, getReviews, getReview, submitReview, newDemo, simulate };
+    getRider, getRiders, getReviews, getReview, submitReview, newDemo, simulate };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.RideShare = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

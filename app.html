@@ -3,9 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f5f6f2">
+  <meta name="theme-color" content="#f2f7f3">
   <title>คำนวณค่าโดยสาร</title>
+  <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="theme.css">
   <script src="fare.js" defer></script>
   <script src="qrcode.js" defer></script>
   <script src="ride-share.js" defer></script>
@@ -31,7 +33,7 @@
   <div class="phone-statusbar" aria-hidden="true"><b>9:41</b><span class="dynamic-island"><i></i></span><span class="status-icons"><svg viewBox="0 0 18 14"><path d="M2 12V9m4 3V6m4 6V3m4 9V1" stroke-width="2.5"/></svg><svg viewBox="0 0 18 14"><path d="M2 4a11 11 0 0 1 14 0M5 7a6 6 0 0 1 8 0m-5 3a2 2 0 0 1 2 0" stroke-width="2"/></svg><span class="status-battery"><i></i></span></span></div>
   <div class="app-shell">
     <header class="app-header">
-      <span class="brand brand-accent">SC-09</span>
+      <span class="brand brand-accent"><span class="brand-symbol" aria-hidden="true"><svg><use href="#i-bike"/></svg></span><span>SC-09<small>วินชัวร์ · ผู้ขับขี่</small></span></span>
       <div class="header-tools"><button id="open-ride-qr" class="share-header-button" type="button" aria-haspopup="dialog" aria-controls="ride-qr-dialog" hidden>QR ผู้โดยสาร</button><span class="demo-badge"><span></span>ทดลอง</span><button id="open-settings" class="settings-button" type="button" aria-label="เปิดการตั้งค่า Debug mode" aria-haspopup="dialog" aria-controls="debug-settings"><svg><use href="#i-settings"/></svg></button></div>
     </header>
 

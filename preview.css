@@ -1,33 +1,27 @@
-:root { font-family: system-ui, sans-serif; color-scheme: light; background: #e7e9e3; }
+:root { font-family: var(--font-sans, Tahoma, sans-serif); color-scheme: light; color: #163e31; background: #edf4ef; }
 * { box-sizing: border-box; }
-body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 30%, #f7f8f4, #e4e7de); }
-.preview-stage { position: relative; width: calc(415px * var(--phone-scale, 1)); height: calc(874px * var(--phone-scale, 1)); margin: 64px 16px 16px; }
-.phone-frame {
-  position: absolute; top: 0; left: 0; width: 415px; height: 874px; padding: 10px;
-  transform: scale(var(--phone-scale, 1)); transform-origin: top left;
-  border: 1px solid #69716f; border-radius: 59px;
-  background: linear-gradient(110deg, #161b1a, #545b58 18%, #141817 30%, #1d2220 85%, #707774);
-  box-shadow: inset 0 0 0 2px #8f9590, inset 0 0 0 4px #202522, 0 24px 60px #26392a26, 0 5px 12px #15251b25;
-}
-.phone-screen { --screen-radius: 48px; position: relative; width: 100%; height: 100%; overflow: hidden; contain: paint; isolation: isolate; border-radius: var(--screen-radius); clip-path: inset(0 round var(--screen-radius)); background: #f5f6f2; box-shadow: 0 0 0 1px #080e0b; }
-.phone-screen iframe { width: 100%; height: 100%; display: block; border: 0; border-radius: inherit; background: #f5f6f2; }
-.frame-button { position: absolute; width: 4px; border: 1px solid #515b55; border-radius: 3px; background: linear-gradient(90deg, #1c231e, #8a938b, #28322b); }
-.frame-silent { left: -4px; top: 112px; height: 23px; }
-.frame-volume-up { left: -4px; top: 161px; height: 47px; }
-.frame-volume-down { left: -4px; top: 220px; height: 47px; }
-.frame-power { right: -4px; top: 177px; height: 73px; }
-.frame-camera { right: -3px; top: 560px; width: 3px; height: 35px; }
-.home-indicator { position: absolute; inset: auto 0 0; height: 22px; display: grid; place-items: center; pointer-events: none; z-index: 100; background: #f5f6f2e8; }
-.home-indicator span { width: 125px; height: 5px; background: #243129; border-radius: 10px; }
-body:not(.phone-preview) { background: #f5f6f2; display: block; }
-body:not(.phone-preview) .preview-stage { width: 100%; height: 100dvh; margin: 0; }
-body:not(.phone-preview) .phone-frame { position: static; width: 100%; height: 100%; padding: 0; transform: none; border: 0; border-radius: 0; background: none; box-shadow: none; }
-body:not(.phone-preview) .phone-screen { --screen-radius: 0px; box-shadow: none; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { height: 100dvh; display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% 35%, #fbfdfb, #e6efe8); }
+.preview-toolbar { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 68px; padding: 10px max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left)); padding-top: max(10px, env(safe-area-inset-top)); border-bottom: 1px solid #dbe6df; background: #ffffffed; }
+.frame-toggle, .version-switch { min-height: 44px; padding: 10px 14px; border: 1px solid #cadcd0; border-radius: 12px; background: #fff; color: #145941; font: 600 14px var(--font-sans, Tahoma, sans-serif); cursor: pointer; }
+.frame-toggle { background: #edf7f0; }
+.frame-toggle[aria-pressed="true"] { background: #145941; color: #fff; border-color: #145941; }
+.version-switch { max-width: 46%; }
+.frame-toggle:focus-visible, .version-switch:focus-visible { outline: 3px solid #56b28b; outline-offset: 3px; }
+.preview-stage { flex: 1; min-height: 0; width: 100%; display: grid; place-items: center; padding: 16px; overflow: hidden; }
+.phone-frame { position: relative; width: min(414px, 100%); height: var(--phone-height, min(874px, 100%)); max-height: 100%; padding: 8px; border: 1px solid #64736c; border-radius: 44px; background: linear-gradient(115deg, #24382f, #0b1711 35%, #1c3025 85%, #4e6457); box-shadow: inset 0 0 0 2px #718279, inset 0 0 0 4px #15251d, 0 20px 50px #183b2525; }
+.phone-screen { position: relative; width: 100%; height: 100%; padding-bottom: 18px; overflow: hidden; isolation: isolate; border-radius: 35px; background: #f2f7f3; }
+.phone-screen iframe { width: 100%; height: 100%; display: block; border: 0; background: #f2f7f3; }
+.frame-button { position: absolute; width: 4px; border: 1px solid #596e60; border-radius: 3px; background: #2a4033; }
+.frame-silent { left: -4px; top: 90px; height: 23px; }.frame-volume-up { left: -4px; top: 135px; height: 42px; }.frame-volume-down { left: -4px; top: 190px; height: 42px; }.frame-power { right: -4px; top: 150px; height: 64px; }.frame-camera { display: none; }
+.home-indicator { position: absolute; inset: auto 0 0; height: 18px; display: grid; place-items: center; pointer-events: none; background: #f2f7f3; }
+.home-indicator span { width: 110px; height: 4px; background: #1a392a; border-radius: 10px; }
+body:not(.phone-preview) .preview-stage { padding: 0; }
+body:not(.phone-preview) .phone-frame { width: 100%; height: 100%; max-height: none; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+body:not(.phone-preview) .phone-screen { border-radius: 0; padding: 0; }
 body:not(.phone-preview) .frame-button, body:not(.phone-preview) .home-indicator { display: none; }
-
-.preview-toolbar { position: fixed; top: max(10px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); z-index: 200; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.frame-toggle, .version-switch { min-height: 44px; padding: 10px 12px; border: 1px solid #cdd8c8; border-radius: 12px; background: #fff; color: #205c46; font: 600 13px system-ui, sans-serif; cursor: pointer; }
-.version-switch { max-width: 45%; }
-.frame-toggle:focus-visible, .version-switch:focus-visible { outline: 3px solid #88ad5a; outline-offset: 3px; }
-body:not(.phone-preview) { height: 100dvh; overflow: hidden; padding-top: calc(64px + env(safe-area-inset-top)); }
-body:not(.phone-preview) .preview-stage { height: 100%; }
+@media (max-width: 440px) { .preview-stage { padding: 10px 8px; }.preview-toolbar { min-height: 64px; gap: 8px; padding-left: 12px; padding-right: 12px; }.frame-toggle, .version-switch { padding: 10px; font-size: 13px; } }
+@media (max-height: 540px) and (orientation: landscape) {
+  .preview-stage { padding: 8px 16px; }.preview-toolbar { min-height: 56px; padding-top: 6px; padding-bottom: 6px; }
+  .phone-frame { width: min(874px, 100%); border-radius: 30px; padding: 6px; }.phone-screen { border-radius: 23px; padding-bottom: 0; }.home-indicator, .frame-button { display: none; }
+}

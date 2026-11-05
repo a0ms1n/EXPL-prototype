@@ -1,0 +1,6 @@
+/* Sarabun by Suppakit Chalermlarp; SIL Open Font License in fonts/OFL.txt. */
+@font-face { font-family: Sarabun; font-style: normal; font-weight: 400; font-display: swap; src: url('./fonts/Sarabun-Regular.ttf') format('truetype'); }
+@font-face { font-family: Sarabun; font-style: normal; font-weight: 500; font-display: swap; src: url('./fonts/Sarabun-Medium.ttf') format('truetype'); }
+@font-face { font-family: Sarabun; font-style: normal; font-weight: 600; font-display: swap; src: url('./fonts/Sarabun-SemiBold.ttf') format('truetype'); }
+@font-face { font-family: Sarabun; font-style: normal; font-weight: 700; font-display: swap; src: url('./fonts/Sarabun-Bold.ttf') format('truetype'); }
+:root { --font-sans: Sarabun, Tahoma, sans-serif; }

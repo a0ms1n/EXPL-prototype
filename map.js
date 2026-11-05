@@ -43,9 +43,10 @@
     const bounds = { left: Math.min(...xs), right: Math.max(...xs), top: Math.min(...ys), bottom: Math.max(...ys) };
     // Reserve space for the map buttons, trip card, and Google's attribution.
     const top = 78;
-    const bottom = document.querySelector('.map-bottom').offsetHeight + 40;
+    const compact = height < 190;
+    const bottom = document.querySelector('.map-bottom').offsetHeight + (compact ? 12 : 40);
     const usableWidth = Math.max(60, width - 126);
-    const usableHeight = Math.max(50, height - top - bottom);
+    const usableHeight = Math.max(compact ? 24 : 50, height - top - bottom);
     const fitZoom = Math.max(MIN_ZOOM, Math.min(17, Math.floor(Math.log2(Math.min(
       usableWidth / (256 * Math.max(bounds.right - bounds.left, 1e-8)),
       usableHeight / (256 * Math.max(bounds.bottom - bounds.top, 1e-8))

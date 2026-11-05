@@ -1,5 +1,7 @@
 # Third-party code
 
+The locally hosted Sarabun font files in `fonts/` are by Suppakit Chalermlarp and distributed under the SIL Open Font License, Version 1.1. The complete copyright and license notice is in `fonts/OFL.txt`. Source: [Google Fonts / Sarabun](https://github.com/google/fonts/tree/main/ofl/sarabun).
+
 `qrcode.js` is vendored from [QR Code Generator by Kazuhiko Arase](https://github.com/kazuhikoarase/qrcode-generator), `js/dist/qrcode.js` (retrieved 2026-11-05). It generates QR codes entirely in the browser. Its original copyright header is retained.
 
 ## MIT License

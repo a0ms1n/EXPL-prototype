@@ -59,6 +59,7 @@
   function setState(state) {
     const previousState = pageState;
     pageState = state;
+    document.body.dataset.tripState = state;
     ['setup', 'meter', 'summary'].forEach(name => { $(`${name}-view`).hidden = name !== state; });
     $('trip-actions').hidden = state !== 'meter';
     const index = ['setup', 'meter', 'summary'].indexOf(state);

@@ -14,8 +14,11 @@
   } catch { /* Storage may be disabled for local files. */ }
   if (['1', '2'].includes(requestedVersion)) prototypeVersion = requestedVersion;
   function resize() {
-    const scale = Math.max(0.1, Math.min(1, (window.innerWidth - 32) / 415, (window.innerHeight - 80) / 874));
-    document.documentElement.style.setProperty('--phone-scale', scale.toFixed(5));
+    const stage = document.getElementById('preview-stage');
+    const style = getComputedStyle(stage);
+    const available = stage.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+    const landscape = window.matchMedia('(max-height: 540px) and (orientation: landscape)').matches;
+    document.documentElement.style.setProperty('--phone-height', `${Math.max(0, Math.min(landscape ? 414 : 874, available))}px`);
   }
   function sync() {
     document.body.classList.toggle('phone-preview', phoneMode);
@@ -52,5 +55,7 @@
   });
   frame.addEventListener('load', sync);
   window.addEventListener('resize', resize);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
+  if (typeof ResizeObserver === 'function') new ResizeObserver(resize).observe(document.getElementById('preview-stage'));
   sync();
 })();
